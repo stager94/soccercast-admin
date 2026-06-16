@@ -10,6 +10,12 @@ export interface CoverageChip {
   active: boolean;
 }
 
+const SYSTEM_FIELDS = new Set(['id', 'created_at', 'updated_at', 'league_season_id']);
+
+function toLabel(key: string): string {
+  return COVERAGE_LABELS[key] ?? key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 const COVERAGE_LABELS: Record<string, string> = {
   events: 'Events',
   lineups: 'Lineups',
@@ -108,12 +114,15 @@ export class LeagueDetail implements OnInit {
   coverageChips(coverage: Record<string, unknown>): CoverageChip[] {
     const chips: CoverageChip[] = [];
     for (const [key, value] of Object.entries(coverage)) {
+      if (SYSTEM_FIELDS.has(key)) continue;
       if (key === 'fixtures' && value !== null && typeof value === 'object') {
         for (const [sub, subVal] of Object.entries(value as Record<string, unknown>)) {
-          chips.push({ label: COVERAGE_LABELS[sub] ?? sub, active: Boolean(subVal) });
+          if (!SYSTEM_FIELDS.has(sub)) {
+            chips.push({ label: toLabel(sub), active: Boolean(subVal) });
+          }
         }
       } else {
-        chips.push({ label: COVERAGE_LABELS[key] ?? key, active: Boolean(value) });
+        chips.push({ label: toLabel(key), active: Boolean(value) });
       }
     }
     return chips;

@@ -1,0 +1,18 @@
+<div class="min-h-screen bg-gray-50">
+  <app-sidebar [isOpen]="sidebarOpen()" />
+
+  @if (sidebarOpen()) {
+    <div
+      class="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
+      (click)="closeSidebar()"
+    ></div>
+  }
+
+  <div class="lg:ml-[290px]">
+    <app-header (toggleSidebar)="toggleSidebar()" />
+
+    <main class="p-4 md:p-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>

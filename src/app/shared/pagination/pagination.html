@@ -1,0 +1,45 @@
+@if (meta().total_pages > 1) {
+  <div class="mt-4 flex flex-col items-center justify-between gap-3 border-t border-gray-100 pt-4 sm:flex-row">
+    <p class="text-sm text-gray-500">
+      Showing {{ rangeStart() }} to {{ rangeEnd() }} of {{ meta().total_count }} results
+    </p>
+
+    <div class="flex items-center gap-1">
+      <button
+        type="button"
+        class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="meta().page === 1"
+        (click)="goTo(meta().page - 1)"
+      >
+        Previous
+      </button>
+
+      @for (p of pages(); track $index) {
+        @if (p === '…') {
+          <span class="px-2 text-sm text-gray-400">…</span>
+        } @else {
+          <button
+            type="button"
+            class="h-9 w-9 rounded-lg text-sm font-medium"
+            [class.bg-brand-500]="p === meta().page"
+            [class.text-white]="p === meta().page"
+            [class.text-gray-500]="p !== meta().page"
+            [class.hover:bg-gray-100]="p !== meta().page"
+            (click)="goTo(p)"
+          >
+            {{ p }}
+          </button>
+        }
+      }
+
+      <button
+        type="button"
+        class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="meta().page === meta().total_pages"
+        (click)="goTo(meta().page + 1)"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+}

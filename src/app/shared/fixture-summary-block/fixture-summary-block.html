@@ -1,0 +1,41 @@
+<div class="mt-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <!-- Stats -->
+    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+      <span>
+        <span class="font-semibold text-gray-900">{{ summary().finished }}</span>
+        / {{ summary().total }} finished
+      </span>
+      @if (summary().live > 0) {
+        <span class="inline-flex items-center gap-1 font-semibold text-red-600">
+          <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500"></span>
+          {{ summary().live }} live
+        </span>
+      } @else {
+        <span class="text-gray-400">0 live</span>
+      }
+      <span class="text-gray-500">{{ summary().upcoming }} upcoming</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2">
+      @if (summary().details_pending > 0) {
+        <span class="text-xs text-amber-600">⚠ {{ summary().details_pending }} without details</span>
+        <button
+          type="button"
+          (click)="retrySync()"
+          [disabled]="syncing()"
+          class="inline-flex items-center rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          @if (syncing()) { Syncing… } @else if (syncDone()) { ✓ Sync started } @else { Retro Sync }
+        </button>
+      }
+      <a
+        [routerLink]="['/leagues', leagueId(), 'seasons', seasonId(), 'fixtures']"
+        class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+      >
+        View Fixtures →
+      </a>
+    </div>
+  </div>
+</div>

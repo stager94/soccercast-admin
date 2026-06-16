@@ -1,0 +1,135 @@
+@if (loading()) {
+  <div class="rounded-2xl border border-gray-200 bg-white p-6">
+    <p class="py-10 text-center text-sm text-gray-400">Loading fixture…</p>
+  </div>
+} @else if (error() || !fixture()) {
+  <div class="rounded-2xl border border-gray-200 bg-white p-6">
+    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      Failed to load fixture.
+    </div>
+  </div>
+} @else {
+  <!-- Back -->
+  <button
+    type="button"
+    (click)="goBack()"
+    class="mb-4 flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700"
+  >
+    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+    Back to fixtures
+  </button>
+
+  <!-- Header card -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-4 md:p-6">
+    <!-- Teams & Score -->
+    <div class="flex items-center justify-center gap-6 py-4">
+      <!-- Home -->
+      <div class="flex flex-col items-center gap-2 text-center">
+        @if (fixture()!.home_team.logo_url) {
+          <img [src]="fixture()!.home_team.logo_url" [alt]="fixture()!.home_team.name" class="h-16 w-16 object-contain" />
+        }
+        <span class="text-sm font-semibold text-gray-800">{{ fixture()!.home_team.name }}</span>
+      </div>
+
+      <!-- Score -->
+      <div class="flex flex-col items-center gap-1">
+        <div class="flex items-center gap-2">
+          <span class="text-3xl font-bold text-gray-900">{{ scoreDisplay() }}</span>
+          @if (isLive()) {
+            <app-live-timer [elapsed]="fixture()!.status_elapsed" [extra]="fixture()!.status_extra" />
+          }
+        </div>
+        @if (htScoreDisplay()) {
+          <span class="text-xs text-gray-400">{{ htScoreDisplay() }}</span>
+        }
+      </div>
+
+      <!-- Away -->
+      <div class="flex flex-col items-center gap-2 text-center">
+        @if (fixture()!.away_team.logo_url) {
+          <img [src]="fixture()!.away_team.logo_url" [alt]="fixture()!.away_team.name" class="h-16 w-16 object-contain" />
+        }
+        <span class="text-sm font-semibold text-gray-800">{{ fixture()!.away_team.name }}</span>
+      </div>
+    </div>
+
+    <!-- Meta -->
+    <div class="mt-2 flex flex-col items-center gap-1.5 text-center">
+      <div class="flex flex-wrap items-center justify-center gap-2 text-xs text-gray-400">
+        @if (venueLine()) { <span>{{ venueLine() }}</span><span>·</span> }
+        <span>{{ fixture()!.date | date: 'd MMM yyyy, HH:mm' }}</span>
+        @if (fixture()!.referee) { <span>·</span><span>Ref: {{ fixture()!.referee }}</span> }
+      </div>
+      <div class="mt-1">
+        <app-fixture-status-badge [status]="fixture()!.status" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs card -->
+  <div class="mt-4 rounded-2xl border border-gray-200 bg-white">
+    <!-- Tab nav -->
+    <div class="flex border-b border-gray-100">
+      @for (tab of tabs; track tab.id) {
+        <button
+          type="button"
+          (click)="setTab(tab.id)"
+          class="px-5 py-3.5 text-sm font-medium transition-colors"
+          [class.border-b-2]="activeTab() === tab.id"
+          [class.border-brand-500]="activeTab() === tab.id"
+          [class.text-brand-500]="activeTab() === tab.id"
+          [class.text-gray-500]="activeTab() !== tab.id"
+          [class.hover:text-gray-700]="activeTab() !== tab.id"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Tab content -->
+    <div class="p-4 md:p-6">
+      @switch (activeTab()) {
+        @case ('events') {
+          <app-events-timeline
+            [fixture]="fixture()!"
+            [events]="fixture()!.events"
+          />
+        }
+        @case ('lineups') {
+          @if (hasLineups()) {
+            <app-lineup-columns
+              [home]="fixture()!.lineups[0]"
+              [away]="fixture()!.lineups[1]"
+            />
+          } @else {
+            <p class="py-8 text-center text-sm text-gray-400">Lineup data not available</p>
+          }
+        }
+        @case ('statistics') {
+          @if (!hasDetails() && isFinished()) {
+            <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              Statistics not yet available
+            </div>
+          } @else {
+            <app-statistics-compare
+              [statistics]="fixture()!.statistics"
+              [homeName]="fixture()!.home_team.name"
+              [awayName]="fixture()!.away_team.name"
+            />
+          }
+        }
+        @case ('player-stats') {
+          @if (!hasDetails() && isFinished()) {
+            <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+              Statistics not yet available
+            </div>
+          } @else {
+            <app-player-stats-table [teams]="fixture()!.player_stats" />
+          }
+        }
+      }
+    </div>
+  </div>
+}

@@ -139,6 +139,13 @@
                 </span>
               }
             </div>
+            @if (cs.fixtures_summary) {
+              <app-fixture-summary-block
+                [summary]="cs.fixtures_summary"
+                [leagueId]="league()!.id"
+                [seasonId]="cs.id"
+              />
+            }
           </div>
         }
 
@@ -194,17 +201,26 @@
                     </button>
 
                     @if (isPastExpanded(ls.id)) {
-                      <div class="flex flex-wrap gap-1.5 px-4 pb-3">
-                        @for (chip of coverageChips(ls.coverage); track chip.label) {
-                          <span
-                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                            [class.bg-green-100]="chip.active"
-                            [class.text-green-700]="chip.active"
-                            [class.bg-gray-100]="!chip.active"
-                            [class.text-gray-400]="!chip.active"
-                          >
-                            {{ chip.label }}
-                          </span>
+                      <div class="px-4 pb-3">
+                        <div class="flex flex-wrap gap-1.5">
+                          @for (chip of coverageChips(ls.coverage); track chip.label) {
+                            <span
+                              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                              [class.bg-green-100]="chip.active"
+                              [class.text-green-700]="chip.active"
+                              [class.bg-gray-100]="!chip.active"
+                              [class.text-gray-400]="!chip.active"
+                            >
+                              {{ chip.label }}
+                            </span>
+                          }
+                        </div>
+                        @if (ls.fixtures_summary) {
+                          <app-fixture-summary-block
+                            [summary]="ls.fixtures_summary"
+                            [leagueId]="league()!.id"
+                            [seasonId]="ls.id"
+                          />
                         }
                       </div>
                     }

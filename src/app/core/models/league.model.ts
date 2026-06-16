@@ -1,4 +1,5 @@
 import { Country } from './country.model';
+import { FixturesSummary } from './fixture.model';
 
 export interface League {
   id: number;
@@ -18,6 +19,7 @@ export interface LeagueSeason {
   current: boolean;
   season: { id: number; year: number };
   coverage: Record<string, unknown>;
+  fixtures_summary: FixturesSummary | null;
 }
 
 export interface LeagueDetail extends League {

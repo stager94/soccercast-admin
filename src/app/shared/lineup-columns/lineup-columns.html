@@ -1,0 +1,64 @@
+<!-- Headers -->
+<div class="mb-4 grid grid-cols-2 gap-4">
+  <div>
+    <p class="text-sm font-semibold text-gray-900">{{ home().team.name }}@if (home().formation) { <span class="ml-1 text-gray-400">({{ home().formation }})</span> }</p>
+    @if (home().coach) { <p class="text-xs text-gray-500">Coach: {{ home().coach }}</p> }
+  </div>
+  <div class="text-right">
+    <p class="text-sm font-semibold text-gray-900">{{ away().team.name }}@if (away().formation) { <span class="ml-1 text-gray-400">({{ away().formation }})</span> }</p>
+    @if (away().coach) { <p class="text-xs text-gray-500">Coach: {{ away().coach }}</p> }
+  </div>
+</div>
+
+<!-- Starting XI -->
+<div class="rounded-xl border border-gray-100 overflow-hidden">
+  @for (i of range(maxLen(home().start_xi, away().start_xi)); track i) {
+    <div class="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100 last:border-b-0">
+      <!-- Home player -->
+      <div class="flex items-center gap-2 px-3 py-2">
+        @if (home().start_xi[i]; as p) {
+          <span class="w-6 shrink-0 text-center text-xs font-medium text-gray-400">{{ p.number }}</span>
+          <span class="text-xs font-medium text-gray-500 w-8 shrink-0">{{ p.position }}</span>
+          <span class="text-sm text-gray-800">{{ p.name }}@if (p.captain) { <span class="ml-1 text-xs text-amber-500">©</span> }</span>
+        }
+      </div>
+      <!-- Away player -->
+      <div class="flex items-center justify-end gap-2 px-3 py-2">
+        @if (away().start_xi[i]; as p) {
+          <span class="text-sm text-gray-800">{{ p.name }}@if (p.captain) { <span class="ml-1 text-xs text-amber-500">©</span> }</span>
+          <span class="text-xs font-medium text-gray-500 w-8 shrink-0 text-right">{{ p.position }}</span>
+          <span class="w-6 shrink-0 text-center text-xs font-medium text-gray-400">{{ p.number }}</span>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Substitutes -->
+<div class="mt-4">
+  <div class="mb-2 flex items-center gap-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+    <div class="h-px flex-1 bg-gray-100"></div>
+    <span>Substitutes</span>
+    <div class="h-px flex-1 bg-gray-100"></div>
+  </div>
+  <div class="rounded-xl border border-gray-100 overflow-hidden">
+    @for (i of range(maxLen(home().substitutes, away().substitutes)); track i) {
+      <div class="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100 last:border-b-0">
+        <div class="flex items-center gap-2 px-3 py-2">
+          @if (home().substitutes[i]; as p) {
+            <span class="w-6 shrink-0 text-center text-xs font-medium text-gray-400">{{ p.number }}</span>
+            <span class="text-xs font-medium text-gray-500 w-8 shrink-0">{{ p.position }}</span>
+            <span class="text-sm text-gray-700">{{ p.name }}</span>
+          }
+        </div>
+        <div class="flex items-center justify-end gap-2 px-3 py-2">
+          @if (away().substitutes[i]; as p) {
+            <span class="text-sm text-gray-700">{{ p.name }}</span>
+            <span class="text-xs font-medium text-gray-500 w-8 shrink-0 text-right">{{ p.position }}</span>
+            <span class="w-6 shrink-0 text-center text-xs font-medium text-gray-400">{{ p.number }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

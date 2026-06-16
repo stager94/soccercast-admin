@@ -1,0 +1,53 @@
+@if (teams().length === 0) {
+  <p class="py-8 text-center text-sm text-gray-400">No player statistics available</p>
+} @else {
+  <div class="flex flex-col gap-8">
+    @for (team of teams(); track team.team.id) {
+      <div>
+        <h3 class="mb-2 text-sm font-semibold text-gray-800">{{ team.team.name }}</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="border-b border-gray-100 text-left text-gray-400">
+                <th class="pb-2 pr-3 font-medium">Player</th>
+                <th class="px-2 pb-2 font-medium">Pos</th>
+                <th class="px-2 pb-2 font-medium">Min</th>
+                <th class="px-2 pb-2 font-medium">Rating</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Goals">G</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Assists">A</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Shots">Sh</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Shots on Goal">SoG</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Passes">Pas</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Pass Accuracy">Acc%</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Dribbles">Drb</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Fouls">Fls</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Yellow Cards">YC</th>
+                <th class="px-2 pb-2 font-medium text-center" title="Red Cards">RC</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              @for (p of team.players; track p.player.id) {
+                <tr class="text-gray-700">
+                  <td class="py-2 pr-3 font-medium text-gray-800 whitespace-nowrap">{{ p.player.name }}</td>
+                  <td class="px-2 py-2 text-gray-500">{{ p.position }}</td>
+                  <td class="px-2 py-2">{{ val(p.minutes) }}</td>
+                  <td class="px-2 py-2" [class]="ratingClass(p.rating)">{{ p.rating ?? '—' }}</td>
+                  <td class="px-2 py-2 text-center">{{ val(p.goals) }}</td>
+                  <td class="px-2 py-2 text-center">{{ val(p.assists) }}</td>
+                  <td class="px-2 py-2 text-center">{{ val(p.shots_total) }}</td>
+                  <td class="px-2 py-2 text-center">{{ val(p.shots_on) }}</td>
+                  <td class="px-2 py-2 text-center">{{ val(p.passes_total) }}</td>
+                  <td class="px-2 py-2 text-center">{{ p.passes_accuracy !== null ? p.passes_accuracy + '%' : '—' }}</td>
+                  <td class="px-2 py-2 text-center">{{ dribbles(p) }}</td>
+                  <td class="px-2 py-2 text-center">{{ val(p.fouls_committed) }}</td>
+                  <td class="px-2 py-2 text-center">{{ p.yellow_cards }}</td>
+                  <td class="px-2 py-2 text-center">{{ p.red_cards }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
+}

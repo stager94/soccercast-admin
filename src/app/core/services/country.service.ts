@@ -9,9 +9,23 @@ import { PaginatedResponse } from '../models/pagination.model';
 export class CountryService {
   private readonly http = inject(HttpClient);
 
-  getAll(page = 1, perPage = 25): Observable<PaginatedResponse<Country>> {
-    return this.http.get<PaginatedResponse<Country>>('/admin/countries', {
-      params: { page, per_page: perPage },
-    });
+  getAll(
+    page = 1,
+    perPage = 25,
+    enabled?: boolean,
+    name?: string,
+  ): Observable<PaginatedResponse<Country>> {
+    const params: Record<string, string | number | boolean> = { page, per_page: perPage };
+    if (enabled !== undefined) params['enabled'] = enabled;
+    if (name) params['name'] = name;
+    return this.http.get<PaginatedResponse<Country>>('/admin/countries', { params });
+  }
+
+  update(id: number, enabled: boolean): Observable<Country> {
+    return this.http.patch<Country>(`/admin/countries/${id}`, { country: { enabled } });
+  }
+
+  sync(): Observable<void> {
+    return this.http.post<void>('/admin/countries/sync', null);
   }
 }

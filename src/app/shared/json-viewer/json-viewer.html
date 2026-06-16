@@ -1,0 +1,78 @@
+@if (isCollapsible()) {
+  @if (isEmpty()) {
+    <div class="leading-6">
+      @if (entryKey() !== null) {
+        <span class="text-sky-700">"{{ entryKey() }}"</span><span class="text-gray-400">: </span>
+      }
+      <span class="text-gray-500">{{ openBracket() }}{{ closeBracket() }}</span>
+    </div>
+  } @else if (collapsed()) {
+    <div class="leading-6">
+      @if (entryKey() !== null) {
+        <span class="text-sky-700">"{{ entryKey() }}"</span><span class="text-gray-400">: </span>
+      }
+      <button
+        type="button"
+        (click)="toggle()"
+        class="inline-flex items-center gap-1 rounded px-0.5 text-gray-500 hover:bg-gray-100"
+      >
+        <svg class="h-3 w-3 shrink-0 text-gray-400" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6 4l4 4-4 4V4z"/>
+        </svg>
+        <span>{{ openBracket() }}</span>
+        <span class="text-gray-400 italic">…</span>
+        <span>{{ closeBracket() }}</span>
+        <span class="text-gray-400 text-xs">({{ entries().length }})</span>
+      </button>
+    </div>
+  } @else {
+    <div class="leading-6">
+      @if (entryKey() !== null) {
+        <span class="text-sky-700">"{{ entryKey() }}"</span><span class="text-gray-400">: </span>
+      }
+      <button
+        type="button"
+        (click)="toggle()"
+        class="inline-flex items-center gap-0.5 rounded px-0.5 text-gray-500 hover:bg-gray-100"
+      >
+        <svg class="h-3 w-3 shrink-0 text-gray-400" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4 6l4 4 4-4H4z"/>
+        </svg>
+        <span>{{ openBracket() }}</span>
+      </button>
+    </div>
+    <div class="ml-4 border-l border-gray-200 pl-3">
+      @for (entry of entries(); track entry.key) {
+        <app-json-viewer
+          [value]="entry.value"
+          [entryKey]="isArray() ? null : entry.key"
+          [depth]="depth() + 1"
+        />
+      }
+    </div>
+    <div class="leading-6 text-gray-500">{{ closeBracket() }}</div>
+  }
+} @else {
+  <div class="leading-6">
+    @if (entryKey() !== null) {
+      <span class="text-sky-700">"{{ entryKey() }}"</span><span class="text-gray-400">: </span>
+    }
+    @switch (valueType()) {
+      @case ('string') {
+        <span class="text-green-700 break-all">"{{ value() }}"</span>
+      }
+      @case ('number') {
+        <span class="text-orange-500">{{ value() }}</span>
+      }
+      @case ('boolean') {
+        <span class="text-purple-600">{{ value() }}</span>
+      }
+      @case ('null') {
+        <span class="text-gray-400 italic">null</span>
+      }
+      @default {
+        <span class="text-gray-600 break-all">{{ value() }}</span>
+      }
+    }
+  </div>
+}

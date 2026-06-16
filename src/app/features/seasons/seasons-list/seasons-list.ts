@@ -1,60 +1,37 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime } from 'rxjs';
+import { Component, OnInit, inject, signal } from '@angular/core';
 
-import { Country } from '../../../core/models/country.model';
+import { Season } from '../../../core/models/season.model';
 import { PaginationMeta } from '../../../core/models/pagination.model';
-import { CountryService } from '../../../core/services/country.service';
+import { SeasonService } from '../../../core/services/season.service';
 import { Pagination } from '../../../shared/pagination/pagination';
 
-export type CountryScope = 'all' | 'enabled' | 'disabled';
-
 @Component({
-  selector: 'app-countries-list',
+  selector: 'app-seasons-list',
   imports: [DatePipe, Pagination],
-  templateUrl: './countries-list.html',
+  templateUrl: './seasons-list.html',
 })
-export class CountriesList implements OnInit {
-  private readonly countryService = inject(CountryService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly nameSearch$ = new Subject<string>();
+export class SeasonsList implements OnInit {
+  private readonly seasonService = inject(SeasonService);
 
-  readonly countries = signal<Country[]>([]);
+  readonly seasons = signal<Season[]>([]);
   readonly meta = signal<PaginationMeta | null>(null);
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly togglingIds = signal<Set<number>>(new Set());
-  readonly scope = signal<CountryScope>('all');
-  readonly nameQuery = signal('');
   readonly syncing = signal(false);
   readonly syncThrottledUntil = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.nameSearch$.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe(() =>
-      this.load(1),
-    );
     this.load(1);
-  }
-
-  setScope(scope: CountryScope): void {
-    this.scope.set(scope);
-    this.load(1);
-  }
-
-  onNameInput(value: string): void {
-    this.nameQuery.set(value);
-    this.nameSearch$.next(value);
   }
 
   load(page: number): void {
     this.loading.set(true);
-    const enabledParam =
-      this.scope() === 'enabled' ? true : this.scope() === 'disabled' ? false : undefined;
-    this.countryService.getAll(page, 25, enabledParam, this.nameQuery() || undefined).subscribe({
+    this.seasonService.getAll(page).subscribe({
       next: (response) => {
-        this.countries.set(response.data);
+        this.seasons.set(response.data);
         this.meta.set(response.meta);
         this.loading.set(false);
       },
@@ -68,7 +45,7 @@ export class CountriesList implements OnInit {
   triggerSync(): void {
     this.syncing.set(true);
     this.syncThrottledUntil.set(null);
-    this.countryService.sync().subscribe({
+    this.seasonService.sync().subscribe({
       next: () => {
         this.syncing.set(false);
         this.load(1);
@@ -82,21 +59,21 @@ export class CountriesList implements OnInit {
     });
   }
 
-  toggleEnabled(country: Country): void {
+  toggleEnabled(season: Season): void {
     const ids = new Set(this.togglingIds());
-    ids.add(country.id);
+    ids.add(season.id);
     this.togglingIds.set(ids);
 
-    this.countryService.update(country.id, !country.enabled).subscribe({
+    this.seasonService.update(season.id, !season.enabled).subscribe({
       next: (updated) => {
-        this.countries.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
+        this.seasons.update((list) => list.map((s) => (s.id === updated.id ? updated : s)));
         const next = new Set(this.togglingIds());
         next.delete(updated.id);
         this.togglingIds.set(next);
       },
       error: () => {
         const next = new Set(this.togglingIds());
-        next.delete(country.id);
+        next.delete(season.id);
         this.togglingIds.set(next);
       },
     });

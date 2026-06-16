@@ -1,0 +1,124 @@
+<div class="relative">
+  <!-- Trigger -->
+  <button
+    type="button"
+    (click)="toggle($event)"
+    [disabled]="loading()"
+    class="inline-flex min-w-44 items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white py-2 pl-3 pr-2.5 text-sm transition-colors hover:border-gray-300 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
+  >
+    @if (loading()) {
+      <span class="text-gray-400">Loading…</span>
+    } @else if (selectedCountry()) {
+      <span class="flex min-w-0 items-center gap-2">
+        @if (selectedCountry()!.flag_url) {
+          <img
+            [src]="selectedCountry()!.flag_url!"
+            [alt]="selectedCountry()!.name + ' flag'"
+            class="h-4 w-6 shrink-0 rounded object-cover"
+          />
+        }
+        <span class="truncate font-medium text-gray-800">{{ selectedCountry()!.name }}</span>
+      </span>
+      <span
+        class="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+        (click)="clear($event)"
+        role="button"
+        aria-label="Clear"
+      >
+        <svg class="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4.28 3.22a.75.75 0 0 0-1.06 1.06L6.94 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06L8 9.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L9.06 8l3.72-3.72a.75.75 0 0 0-1.06-1.06L8 6.94 4.28 3.22Z"/>
+        </svg>
+      </span>
+    } @else {
+      <span class="text-gray-400">All countries</span>
+      <svg class="ml-auto h-4 w-4 shrink-0 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
+      </svg>
+    }
+  </button>
+
+  <!-- Dropdown -->
+  @if (isOpen()) {
+    <div
+      (click)="$event.stopPropagation()"
+      class="absolute left-0 top-full z-50 mt-1 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+    >
+      <!-- Search input -->
+      <div class="border-b border-gray-100 p-2">
+        <div class="relative">
+          <svg class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0Z" />
+          </svg>
+          <input
+            #searchInput
+            type="text"
+            placeholder="Search country…"
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            class="w-full rounded-lg border border-gray-200 py-1.5 pl-8 pr-3 text-sm text-gray-700 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          />
+        </div>
+      </div>
+
+      <!-- Options list -->
+      <div class="max-h-64 overflow-y-auto py-1">
+        <!-- Clear option -->
+        <button
+          type="button"
+          (click)="select(null, $event)"
+          class="flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+          [class.font-medium]="value() === null"
+          [class.text-brand-600]="value() === null"
+          [class.text-gray-500]="value() !== null"
+        >
+          <span class="flex h-5 w-8 items-center justify-center text-xs text-gray-300">—</span>
+          All countries
+          @if (value() === null) {
+            <svg class="ml-auto h-4 w-4 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+            </svg>
+          }
+        </button>
+
+        <div class="mx-2 my-1 h-px bg-gray-100"></div>
+
+        @if (filteredCountries().length === 0) {
+          <p class="px-3 py-3 text-center text-xs text-gray-400">No countries found.</p>
+        }
+
+        @for (country of filteredCountries(); track country.id) {
+          <button
+            type="button"
+            (click)="select(country.id, $event)"
+            class="flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+            [class.bg-brand-50]="value() === country.id"
+          >
+            @if (country.flag_url) {
+              <img
+                [src]="country.flag_url"
+                [alt]="country.name + ' flag'"
+                class="h-4 w-6 shrink-0 rounded object-cover"
+                loading="lazy"
+              />
+            } @else {
+              <span class="h-4 w-6 shrink-0 rounded bg-gray-100"></span>
+            }
+            <span
+              class="truncate text-sm"
+              [class.font-medium]="value() === country.id"
+              [class.text-brand-700]="value() === country.id"
+              [class.text-gray-700]="value() !== country.id"
+            >
+              {{ country.name }}
+            </span>
+            @if (value() === country.id) {
+              <svg class="ml-auto h-4 w-4 shrink-0 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>
+              </svg>
+            }
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -2,73 +2,89 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
 
-import { Country } from '../../../core/models/country.model';
+import { League } from '../../../core/models/league.model';
 import { PaginationMeta } from '../../../core/models/pagination.model';
-import { CountryService } from '../../../core/services/country.service';
+import { LeagueService } from '../../../core/services/league.service';
+import { CountrySelect } from '../../../shared/country-select/country-select';
 import { Pagination } from '../../../shared/pagination/pagination';
 
-export type CountryScope = 'all' | 'enabled' | 'disabled';
+type LeagueScope = 'all' | 'enabled' | 'disabled';
 
 @Component({
-  selector: 'app-countries-list',
-  imports: [DatePipe, Pagination],
-  templateUrl: './countries-list.html',
+  selector: 'app-leagues-list',
+  imports: [DatePipe, RouterLink, Pagination, CountrySelect],
+  templateUrl: './leagues-list.html',
 })
-export class CountriesList implements OnInit {
-  private readonly countryService = inject(CountryService);
+export class LeaguesList implements OnInit {
+  private readonly leagueService = inject(LeagueService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly nameSearch$ = new Subject<string>();
+  private readonly search$ = new Subject<void>();
 
-  readonly countries = signal<Country[]>([]);
+  readonly leagues = signal<League[]>([]);
   readonly meta = signal<PaginationMeta | null>(null);
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly togglingIds = signal<Set<number>>(new Set());
-  readonly scope = signal<CountryScope>('all');
+  readonly scope = signal<LeagueScope>('all');
   readonly nameQuery = signal('');
+  readonly selectedCountryId = signal<number | null>(null);
   readonly syncing = signal(false);
   readonly syncThrottledUntil = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.nameSearch$.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe(() =>
+    this.search$.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe(() =>
       this.load(1),
     );
     this.load(1);
   }
 
-  setScope(scope: CountryScope): void {
+  setScope(scope: LeagueScope): void {
     this.scope.set(scope);
     this.load(1);
   }
 
   onNameInput(value: string): void {
     this.nameQuery.set(value);
-    this.nameSearch$.next(value);
+    this.search$.next();
+  }
+
+  onCountryChange(id: number | null): void {
+    this.selectedCountryId.set(id);
+    this.load(1);
   }
 
   load(page: number): void {
     this.loading.set(true);
     const enabledParam =
       this.scope() === 'enabled' ? true : this.scope() === 'disabled' ? false : undefined;
-    this.countryService.getAll(page, 25, enabledParam, this.nameQuery() || undefined).subscribe({
-      next: (response) => {
-        this.countries.set(response.data);
-        this.meta.set(response.meta);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set(true);
-        this.loading.set(false);
-      },
-    });
+    this.leagueService
+      .getAll(
+        page,
+        25,
+        enabledParam,
+        this.nameQuery() || undefined,
+        this.selectedCountryId() ?? undefined,
+      )
+      .subscribe({
+        next: (response) => {
+          this.leagues.set(response.data);
+          this.meta.set(response.meta);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.error.set(true);
+          this.loading.set(false);
+        },
+      });
   }
 
   triggerSync(): void {
     this.syncing.set(true);
     this.syncThrottledUntil.set(null);
-    this.countryService.sync().subscribe({
+    this.leagueService.sync().subscribe({
       next: () => {
         this.syncing.set(false);
         this.load(1);
@@ -82,21 +98,21 @@ export class CountriesList implements OnInit {
     });
   }
 
-  toggleEnabled(country: Country): void {
+  toggleEnabled(league: League): void {
     const ids = new Set(this.togglingIds());
-    ids.add(country.id);
+    ids.add(league.id);
     this.togglingIds.set(ids);
 
-    this.countryService.update(country.id, !country.enabled).subscribe({
+    this.leagueService.update(league.id, !league.enabled).subscribe({
       next: (updated) => {
-        this.countries.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
+        this.leagues.update((list) => list.map((l) => (l.id === updated.id ? updated : l)));
         const next = new Set(this.togglingIds());
         next.delete(updated.id);
         this.togglingIds.set(next);
       },
       error: () => {
         const next = new Set(this.togglingIds());
-        next.delete(country.id);
+        next.delete(league.id);
         this.togglingIds.set(next);
       },
     });

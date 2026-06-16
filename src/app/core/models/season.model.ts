@@ -1,8 +1,6 @@
-export interface Country {
+export interface Season {
   id: number;
-  name: string;
-  code: string;
-  flag_url: string;
+  year: number;
   enabled: boolean;
   created_at: string;
   updated_at: string;

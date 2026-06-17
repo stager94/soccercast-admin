@@ -40,12 +40,16 @@ export class ApiFootballLogsList implements OnInit {
   }
 
   statusClass(status: number): string {
-    if (status >= 200 && status < 300) {
-      return 'bg-green-50 text-green-600';
-    }
-    if (status >= 400) {
-      return 'bg-red-50 text-red-600';
-    }
+    if (status >= 200 && status < 300) return 'bg-green-50 text-green-600';
+    if (status >= 400) return 'bg-red-50 text-red-600';
+    return 'bg-gray-100 text-gray-600';
+  }
+
+  resolutionClass(resolution: string): string {
+    if (resolution === 'ok') return 'bg-green-100 text-green-700';
+    if (resolution === 'rateLimit') return 'bg-orange-100 text-orange-700';
+    if (resolution === 'requests') return 'bg-red-100 text-red-700';
+    if (resolution === 'plan') return 'bg-purple-100 text-purple-700';
     return 'bg-gray-100 text-gray-600';
   }
 }

@@ -22,6 +22,7 @@ export class FixturesList implements OnInit {
   private readonly fixtureService = inject(FixtureService);
   private readonly destroyRef = inject(DestroyRef);
   private pollingSubscription: Subscription | null = null;
+  private loadSubscription: Subscription | null = null;
 
   readonly leagueId = signal('');
   readonly seasonId = signal('');
@@ -48,15 +49,17 @@ export class FixturesList implements OnInit {
     this.fixtureService
       .getRounds(this.leagueId(), this.seasonId())
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: (r) => this.rounds.set(r.rounds), error: () => {} });
+      .subscribe({ next: (r) => this.rounds.set(r.data), error: () => {} });
 
     this.load(1);
   }
 
   load(page: number): void {
+    this.loadSubscription?.unsubscribe();
     this.currentPage.set(page);
     this.loading.set(true);
-    this.fixtureService
+    this.error.set(false);
+    this.loadSubscription = this.fixtureService
       .getAll(this.leagueId(), this.seasonId(), {
         page,
         status: this.statusFilter() || undefined,
@@ -108,10 +111,16 @@ export class FixturesList implements OnInit {
     return FINISHED_STATUSES.includes(f.status);
   }
 
-  detailsIcon(f: Fixture): '✓' | '✗' | '—' {
-    if (f.details_synced_at) return '✓';
-    if (this.isFinished(f)) return '✗';
-    return '—';
+  syncCells(f: Fixture): { label: string; cls: string }[] {
+    const fin = this.isFinished(f);
+    const cls = (v: string | null) =>
+      v ? 'text-green-600' : fin ? 'text-red-400' : 'text-gray-300';
+    return [
+      { label: 'E', cls: cls(f.events_synced_at) },
+      { label: 'L', cls: cls(f.lineups_synced_at) },
+      { label: 'S', cls: cls(f.statistics_synced_at) },
+      { label: 'P', cls: cls(f.player_statistics_synced_at) },
+    ];
   }
 
   scoreDisplay(f: Fixture): string {

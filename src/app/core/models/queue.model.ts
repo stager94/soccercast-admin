@@ -27,7 +27,7 @@ export interface QueueJob {
 
 export interface FailedJob {
   id: number;
-  error: string;
+  error: string | Record<string, unknown>;
   created_at: string;
   job: {
     id: number;

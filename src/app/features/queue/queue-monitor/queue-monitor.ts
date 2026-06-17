@@ -203,4 +203,16 @@ export class QueueMonitor implements OnInit {
   isRetrying(id: number): boolean { return this.retryingIds().has(id); }
   isDeleting(id: number): boolean { return this.deletingIds().has(id); }
   hasJobFilters(): boolean { return !!(this.jobStatusFilter() || this.jobClassFilter() || this.jobQueueFilter()); }
+
+  formatError(error: string | Record<string, unknown>): string {
+    if (typeof error === 'string') return error;
+    // Common GoodJob/Solid Queue error shape: { message, backtrace }
+    if (typeof error === 'object' && error !== null) {
+      const msg = (error['message'] ?? error['error'] ?? '') as string;
+      const bt = error['backtrace'];
+      const trace = Array.isArray(bt) ? '\n' + (bt as string[]).slice(0, 10).join('\n') : '';
+      return msg ? msg + trace : JSON.stringify(error, null, 2);
+    }
+    return String(error);
+  }
 }

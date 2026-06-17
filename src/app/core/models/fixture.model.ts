@@ -22,7 +22,6 @@ export interface FixturesSummary {
   finished: number;
   live: number;
   upcoming: number;
-  details_pending: number;
 }
 
 export interface Fixture {
@@ -40,7 +39,10 @@ export interface Fixture {
   score_fulltime: FixtureScoreData;
   score_extratime: FixtureScoreData;
   score_penalty: FixtureScoreData;
-  details_synced_at: string | null;
+  events_synced_at: string | null;
+  lineups_synced_at: string | null;
+  statistics_synced_at: string | null;
+  player_statistics_synced_at: string | null;
 }
 
 export interface FixtureEvent {

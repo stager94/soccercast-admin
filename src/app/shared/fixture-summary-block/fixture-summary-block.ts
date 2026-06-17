@@ -19,11 +19,11 @@ export class FixtureSummaryBlock {
   readonly syncing = signal(false);
   readonly syncDone = signal(false);
 
-  retrySync(): void {
+  syncFixtures(): void {
     if (this.syncing()) return;
     this.syncing.set(true);
     this.syncDone.set(false);
-    this.fixtureService.retroSync(this.leagueId()).subscribe({
+    this.fixtureService.syncSeasonFixtures(this.leagueId(), this.seasonId()).subscribe({
       next: () => {
         this.syncing.set(false);
         this.syncDone.set(true);

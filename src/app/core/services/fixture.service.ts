@@ -31,8 +31,8 @@ export class FixtureService {
     );
   }
 
-  getRounds(leagueId: number | string, seasonId: number | string): Observable<{ rounds: string[] }> {
-    return this.http.get<{ rounds: string[] }>(
+  getRounds(leagueId: number | string, seasonId: number | string): Observable<{ data: string[] }> {
+    return this.http.get<{ data: string[] }>(
       `/admin/leagues/${leagueId}/seasons/${seasonId}/fixtures/rounds`,
     );
   }
@@ -43,5 +43,29 @@ export class FixtureService {
 
   retroSync(leagueId: number): Observable<void> {
     return this.http.post<void>('/admin/fixtures/retro_sync', { league_id: leagueId });
+  }
+
+  syncDetails(id: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/fixtures/${id}/sync_details`, {});
+  }
+
+  syncEvents(id: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/fixtures/${id}/sync_events`, {});
+  }
+
+  syncLineups(id: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/fixtures/${id}/sync_lineups`, {});
+  }
+
+  syncStatistics(id: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/fixtures/${id}/sync_statistics`, {});
+  }
+
+  syncPlayerStatistics(id: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/fixtures/${id}/sync_player_statistics`, {});
+  }
+
+  syncSeasonFixtures(leagueId: number | string, seasonId: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/leagues/${leagueId}/seasons/${seasonId}/sync_fixtures`, {});
   }
 }

@@ -159,7 +159,7 @@
                     <span class="text-gray-400">·</span>
                     <span class="text-xs text-gray-400">{{ fj.created_at | date: 'dd MMM yyyy, HH:mm' }}</span>
                   </div>
-                  <pre class="mt-2 max-h-32 overflow-auto rounded-lg bg-white px-3 py-2 text-xs text-red-700 whitespace-pre-wrap break-all border border-red-100">{{ fj.error }}</pre>
+                  <pre class="mt-2 max-h-32 overflow-auto rounded-lg bg-white px-3 py-2 text-xs text-red-700 whitespace-pre-wrap break-all border border-red-100">{{ formatError(fj.error) }}</pre>
                 </div>
                 <div class="flex shrink-0 gap-2">
                   <button

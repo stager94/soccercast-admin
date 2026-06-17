@@ -10,11 +10,10 @@
   </div>
 </div>
 
-<!-- Starting XI -->
+<!-- Starting XI table -->
 <div class="rounded-xl border border-gray-100 overflow-hidden">
   @for (i of range(maxLen(home().start_xi, away().start_xi)); track i) {
     <div class="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100 last:border-b-0">
-      <!-- Home player -->
       <div class="flex items-center gap-2 px-3 py-2">
         @if (home().start_xi[i]; as p) {
           <span class="w-6 shrink-0 text-center text-xs font-medium text-gray-400">{{ p.number }}</span>
@@ -22,7 +21,6 @@
           <span class="text-sm text-gray-800">{{ p.name }}@if (p.captain) { <span class="ml-1 text-xs text-amber-500">©</span> }</span>
         }
       </div>
-      <!-- Away player -->
       <div class="flex items-center justify-end gap-2 px-3 py-2">
         @if (away().start_xi[i]; as p) {
           <span class="text-sm text-gray-800">{{ p.name }}@if (p.captain) { <span class="ml-1 text-xs text-amber-500">©</span> }</span>
@@ -34,8 +32,85 @@
   }
 </div>
 
+<!-- Pitch formation view -->
+<div class="mt-5">
+  <div class="mb-3 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+    <div class="h-px flex-1 bg-gray-100"></div>
+    <span>Formation</span>
+    <div class="h-px flex-1 bg-gray-100"></div>
+  </div>
+
+  <div class="mx-auto" style="max-width: 580px">
+    <div class="relative w-full overflow-hidden rounded-xl" style="aspect-ratio: 105/68">
+      <svg
+        class="absolute inset-0 h-full w-full"
+        viewBox="0 0 105 68"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect width="105" height="68" fill="#2d8a41"/>
+        @for (s of [0,1,2,3,4,5,6]; track s) {
+          <rect [attr.x]="s * 15" y="0" width="15" height="68" fill="rgba(0,0,0,0.04)"/>
+        }
+        <rect x="1" y="1" width="103" height="66" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        <line x1="52.5" y1="1" x2="52.5" y2="67" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        <circle cx="52.5" cy="34" r="9.15" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        <circle cx="52.5" cy="34" r="0.6" fill="rgba(255,255,255,0.6)"/>
+        <rect x="1" y="13.84" width="16.5" height="40.32" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        <rect x="1" y="24.84" width="5.5" height="18.32" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        <rect x="0" y="29.32" width="1" height="9.36" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+        <circle cx="11" cy="34" r="0.5" fill="rgba(255,255,255,0.6)"/>
+        <rect x="87.5" y="13.84" width="16.5" height="40.32" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        <rect x="98.5" y="24.84" width="5.5" height="18.32" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.5"/>
+        <rect x="104" y="29.32" width="1" height="9.36" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+        <circle cx="94" cy="34" r="0.5" fill="rgba(255,255,255,0.6)"/>
+        <path d="M 1 4.5 A 3.5 3.5 0 0 1 4.5 1" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+        <path d="M 100.5 1 A 3.5 3.5 0 0 1 104 4.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+        <path d="M 1 63.5 A 3.5 3.5 0 0 0 4.5 67" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+        <path d="M 100.5 67 A 3.5 3.5 0 0 0 104 63.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.5"/>
+      </svg>
+
+      @for (p of homePlayers(); track p.player.id) {
+        <div
+          class="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+          [style.left]="p.x + '%'"
+          [style.top]="p.y + '%'"
+        >
+          <div class="relative flex h-7 w-7 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white shadow ring-1 ring-white/40">
+            {{ p.player.number }}
+            @if (p.player.captain) {
+              <span class="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-amber-400 text-[6px] font-bold text-white">C</span>
+            }
+          </div>
+          <span class="mt-0.5 max-w-[50px] truncate text-center text-[8px] font-medium leading-tight text-white drop-shadow">
+            {{ shortName(p.player.name) }}
+          </span>
+        </div>
+      }
+
+      @for (p of awayPlayers(); track p.player.id) {
+        <div
+          class="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+          [style.left]="p.x + '%'"
+          [style.top]="p.y + '%'"
+        >
+          <div class="relative flex h-7 w-7 items-center justify-center rounded-full bg-white text-[10px] font-bold text-gray-900 shadow ring-1 ring-black/10">
+            {{ p.player.number }}
+            @if (p.player.captain) {
+              <span class="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-amber-400 text-[6px] font-bold text-white">C</span>
+            }
+          </div>
+          <span class="mt-0.5 max-w-[50px] truncate text-center text-[8px] font-medium leading-tight text-white drop-shadow">
+            {{ shortName(p.player.name) }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
 <!-- Substitutes -->
-<div class="mt-4">
+<div class="mt-5">
   <div class="mb-2 flex items-center gap-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
     <div class="h-px flex-1 bg-gray-100"></div>
     <span>Substitutes</span>

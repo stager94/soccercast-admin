@@ -74,7 +74,7 @@
             <th class="pb-3 pr-4 text-center">Score</th>
             <th class="pb-3 pr-4">Away</th>
             <th class="pb-3 pr-4">Status</th>
-            <th class="pb-3 text-center">Details</th>
+            <th class="pb-3 text-center">Sync</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
@@ -115,11 +115,11 @@
                 <app-fixture-status-badge [status]="f.status" />
               </td>
               <td class="py-3 text-center">
-                @switch (detailsIcon(f)) {
-                  @case ('✓') { <span class="font-semibold text-green-600">✓</span> }
-                  @case ('✗') { <span class="font-semibold text-red-400">✗</span> }
-                  @default { <span class="text-gray-300">—</span> }
-                }
+                <div class="flex items-center justify-center gap-1 font-mono text-xs font-bold">
+                  @for (c of syncCells(f); track c.label) {
+                    <span [class]="c.cls">{{ c.label }}</span>
+                  }
+                </div>
               </td>
             </tr>
           }

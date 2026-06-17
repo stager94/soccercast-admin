@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, interval } from 'rxjs';
+import { Subscription, interval, timer } from 'rxjs';
 
 import { FINISHED_STATUSES, LIVE_STATUSES, FixtureDetail as FixtureDetailModel } from '../../../core/models/fixture.model';
 import { FixtureService } from '../../../core/services/fixture.service';
@@ -14,6 +14,7 @@ import { PlayerStatsTable } from '../../../shared/player-stats-table/player-stat
 import { StatisticsCompare } from '../../../shared/statistics-compare/statistics-compare';
 
 type Tab = 'events' | 'lineups' | 'statistics' | 'player-stats';
+type SyncType = 'all' | 'events' | 'lineups' | 'statistics' | 'player_stats';
 
 @Component({
   selector: 'app-fixture-detail',
@@ -31,6 +32,8 @@ export class FixtureDetail implements OnInit {
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly activeTab = signal<Tab>('events');
+  readonly syncingType = signal<SyncType | null>(null);
+  readonly syncDoneType = signal<SyncType | null>(null);
 
   readonly tabs: { id: Tab; label: string }[] = [
     { id: 'events', label: 'Events' },
@@ -75,6 +78,43 @@ export class FixtureDetail implements OnInit {
     }
   }
 
+  sync(type: SyncType): void {
+    const f = this.fixture();
+    if (!f || this.syncingType()) return;
+    this.syncingType.set(type);
+
+    const obs$ = type === 'events' ? this.fixtureService.syncEvents(f.id)
+      : type === 'lineups' ? this.fixtureService.syncLineups(f.id)
+      : type === 'statistics' ? this.fixtureService.syncStatistics(f.id)
+      : type === 'player_stats' ? this.fixtureService.syncPlayerStatistics(f.id)
+      : this.fixtureService.syncDetails(f.id);
+
+    obs$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.syncingType.set(null);
+        this.syncDoneType.set(type);
+        timer(2500).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+          this.syncDoneType.set(null);
+          this.load(String(f.id));
+        });
+      },
+      error: () => this.syncingType.set(null),
+    });
+  }
+
+  showSync(type: SyncType): boolean {
+    const f = this.fixture();
+    if (!f) return false;
+    if (type === 'lineups') return f.status === 'NS' || (this.isFinished() && !this.hasLineups());
+    return this.isFinished();
+  }
+
+  syncLabel(type: SyncType): string {
+    if (this.syncingType() === type) return 'Syncing…';
+    if (this.syncDoneType() === type) return '✓ Queued';
+    return type === 'all' ? 'Sync All' : 'Sync';
+  }
+
   goBack(): void {
     this.location.back();
   }
@@ -88,8 +128,15 @@ export class FixtureDetail implements OnInit {
     return f ? LIVE_STATUSES.includes(f.status) : false;
   }
 
-  hasDetails(): boolean {
-    return !!this.fixture()?.details_synced_at;
+  syncCells(): { label: string; synced_at: string | null }[] {
+    const f = this.fixture();
+    if (!f) return [];
+    return [
+      { label: 'Events',     synced_at: f.events_synced_at },
+      { label: 'Lineups',    synced_at: f.lineups_synced_at },
+      { label: 'Statistics', synced_at: f.statistics_synced_at },
+      { label: 'Players',    synced_at: f.player_statistics_synced_at },
+    ];
   }
 
   scoreDisplay(): string {

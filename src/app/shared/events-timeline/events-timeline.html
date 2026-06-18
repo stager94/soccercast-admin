@@ -12,14 +12,14 @@
       } @else {
         <div
           class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-gray-50"
-          [class.flex-row-reverse]="item.side === 'home'"
+          [class.flex-row-reverse]="item.side === 'away'"
         >
           <span class="w-10 shrink-0 text-xs font-medium text-gray-500"
-            [class.text-right]="item.side === 'away'">
+            [class.text-right]="item.side === 'home'">
             {{ timeLabel(item.event) }}
           </span>
           <span class="shrink-0 text-base">{{ icon(item.event) }}</span>
-          <div [class.text-right]="item.side === 'home'" class="flex-1">
+          <div [class.text-right]="item.side === 'away'" class="flex-1">
             <span class="text-sm font-medium text-gray-800">{{ eventLabel(item.event) }}</span>
             <span class="ml-2 text-xs text-gray-400">{{ item.event.team.name }}</span>
           </div>

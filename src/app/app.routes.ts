@@ -11,11 +11,20 @@ import { LeagueDetail } from './features/leagues/league-detail/league-detail';
 import { LeaguesList } from './features/leagues/leagues-list/leagues-list';
 import { SeasonsList } from './features/seasons/seasons-list/seasons-list';
 import { Dashboard } from './features/dashboard/dashboard';
+import { Login } from './features/auth/login/login';
+import { Sessions } from './features/auth/sessions/sessions';
+import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    component: Login,
+    canActivate: [guestGuard],
+  },
+  {
     path: '',
     component: MainLayout,
+    canActivate: [authGuard],
     children: [
       { path: '', component: Dashboard },
       { path: 'countries', component: CountriesList },
@@ -27,6 +36,7 @@ export const routes: Routes = [
       { path: 'queue', component: QueueMonitor },
       { path: 'api-football-logs', component: ApiFootballLogsList },
       { path: 'api-football-logs/:id', component: ApiFootballLogDetail },
+      { path: 'sessions', component: Sessions },
     ],
   },
 ];

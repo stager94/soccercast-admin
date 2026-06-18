@@ -7,7 +7,7 @@ import { PaginatedResponse } from '../models/pagination.model';
 
 export interface FixturesFilter {
   page?: number;
-  status?: string;
+  status?: string[];
   round?: string;
   date?: string;
 }
@@ -21,8 +21,8 @@ export class FixtureService {
     seasonId: number | string,
     filter: FixturesFilter = {},
   ): Observable<PaginatedResponse<Fixture>> {
-    const params: Record<string, string | number> = { page: filter.page ?? 1, per_page: 25 };
-    if (filter.status) params['status'] = filter.status;
+    const params: Record<string, string | number | string[]> = { page: filter.page ?? 1, per_page: 25 };
+    if (filter.status?.length) params['status[]'] = filter.status;
     if (filter.round) params['round'] = filter.round;
     if (filter.date) params['date'] = filter.date;
     return this.http.get<PaginatedResponse<Fixture>>(

@@ -6,6 +6,14 @@ export type FixtureStatus =
 export const LIVE_STATUSES: FixtureStatus[] = ['1H', 'HT', '2H', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE'];
 export const FINISHED_STATUSES: FixtureStatus[] = ['FT', 'AET', 'PEN', 'AWD', 'WO'];
 
+export const STATUS_FILTER_MAP: Record<string, FixtureStatus[]> = {
+  Upcoming: ['NS'],
+  Live: LIVE_STATUSES,
+  Finished: FINISHED_STATUSES,
+  Postponed: ['PST'],
+};
+export const STATUS_FILTER_OPTIONS = Object.keys(STATUS_FILTER_MAP);
+
 export interface FixtureTeam {
   id: number;
   name: string;

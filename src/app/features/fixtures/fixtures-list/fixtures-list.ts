@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
 
-import { FINISHED_STATUSES, LIVE_STATUSES, Fixture } from '../../../core/models/fixture.model';
+import { FINISHED_STATUSES, LIVE_STATUSES, STATUS_FILTER_MAP, STATUS_FILTER_OPTIONS, Fixture } from '../../../core/models/fixture.model';
 import { PaginationMeta } from '../../../core/models/pagination.model';
 import { FixtureService } from '../../../core/services/fixture.service';
 import { FixtureStatusBadge } from '../../../shared/fixture-status-badge/fixture-status-badge';
@@ -37,7 +37,7 @@ export class FixturesList implements OnInit {
   readonly dateFilter = signal('');
   readonly currentPage = signal(1);
 
-  readonly statusOptions = ['Upcoming', 'Live', 'Finished', 'Postponed'];
+  readonly statusOptions = STATUS_FILTER_OPTIONS;
 
   readonly leagueIdNum = computed(() => Number(this.leagueId()));
   readonly seasonIdNum = computed(() => Number(this.seasonId()));
@@ -62,7 +62,7 @@ export class FixturesList implements OnInit {
     this.loadSubscription = this.fixtureService
       .getAll(this.leagueId(), this.seasonId(), {
         page,
-        status: this.statusFilter() || undefined,
+        status: this.statusFilter() ? STATUS_FILTER_MAP[this.statusFilter()] : undefined,
         round: this.roundFilter() || undefined,
         date: this.dateFilter() || undefined,
       })

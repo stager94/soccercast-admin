@@ -145,6 +145,16 @@
       } @else if (failedJobs().length === 0) {
         <p class="py-10 text-center text-sm text-gray-400">No failed jobs. 🎉</p>
       } @else {
+        <div class="mb-3 flex justify-end">
+          <button
+            type="button"
+            (click)="deleteAllJobs()"
+            [disabled]="deletingAll()"
+            class="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ deletingAll() ? 'Deleting…' : 'Delete All' }}
+          </button>
+        </div>
         <div class="flex flex-col gap-3">
           @for (fj of failedJobs(); track fj.id) {
             <div class="rounded-xl border border-red-100 bg-red-50 p-4">

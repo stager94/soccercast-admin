@@ -44,6 +44,7 @@ export class QueueMonitor implements OnInit {
   readonly failedLoading = signal(false);
   readonly retryingIds = signal<Set<number>>(new Set());
   readonly deletingIds = signal<Set<number>>(new Set());
+  readonly deletingAll = signal(false);
 
   // Recurring tab
   readonly recurringTasks = signal<RecurringTask[]>([]);
@@ -151,6 +152,23 @@ export class QueueMonitor implements OnInit {
           this.loadStats();
         },
         error: () => this.deletingIds.update((s) => { const n = new Set(s); n.delete(job.id); return n; }),
+      });
+  }
+
+  deleteAllJobs(): void {
+    if (!confirm(`Delete all ${this.failedMeta()?.total_count ?? ''} failed jobs? This cannot be undone.`)) return;
+    if (this.deletingAll()) return;
+    this.deletingAll.set(true);
+    this.queueService
+      .deleteAllFailedJobs()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.deletingAll.set(false);
+          this.loadFailed(1);
+          this.loadStats();
+        },
+        error: () => this.deletingAll.set(false),
       });
   }
 

@@ -43,6 +43,10 @@ export class QueueService {
     return this.http.delete<void>(`/admin/queue/failed_jobs/${id}`);
   }
 
+  deleteAllFailedJobs(): Observable<void> {
+    return this.http.delete<void>('/admin/queue/failed_jobs/destroy_all');
+  }
+
   getRecurringTasks(): Observable<{ data: RecurringTask[] }> {
     return this.http.get<{ data: RecurringTask[] }>('/admin/queue/recurring_tasks');
   }

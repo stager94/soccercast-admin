@@ -3,7 +3,7 @@ export type FixtureStatus =
   | 'SUSP' | 'INT' | 'FT' | 'AET' | 'PEN' | 'PST'
   | 'CANC' | 'ABD' | 'AWD' | 'WO' | 'LIVE';
 
-export const LIVE_STATUSES: FixtureStatus[] = ['1H', 'HT', '2H', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE'];
+export const LIVE_STATUSES: FixtureStatus[] = ['1H', 'HT', '2H', 'ET', 'BT', 'P', 'SUSP', 'LIVE'];
 export const FINISHED_STATUSES: FixtureStatus[] = ['FT', 'AET', 'PEN', 'AWD', 'WO'];
 
 export const STATUS_FILTER_MAP: Record<string, FixtureStatus[]> = {

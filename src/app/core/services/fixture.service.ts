@@ -16,10 +16,12 @@ export interface FixturesFilter {
 export class FixtureService {
   private readonly http = inject(HttpClient);
 
-  getByDate(date: string, filter: { status?: string[] } = {}): Observable<{ data: Fixture[] }> {
-    const params: Record<string, string | string[]> = { date };
-    if (filter.status?.length) params['status[]'] = filter.status;
-    return this.http.get<{ data: Fixture[] }>('/admin/fixtures', { params });
+  getByDate(date: string): Observable<{ data: Fixture[] }> {
+    return this.http.get<{ data: Fixture[] }>('/admin/fixtures', { params: { date } });
+  }
+
+  getLive(): Observable<{ data: Fixture[] }> {
+    return this.http.get<{ data: Fixture[] }>('/admin/fixtures', { params: { live: 'true' } });
   }
 
   getAll(

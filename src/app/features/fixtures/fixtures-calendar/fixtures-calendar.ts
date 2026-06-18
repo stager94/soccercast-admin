@@ -35,20 +35,27 @@ export class FixturesCalendar implements OnInit {
   private readonly fixtureService = inject(FixtureService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private pollingSubscription: Subscription | null = null;
-  private loadSubscription: Subscription | null = null;
+  private livePolling: Subscription | null = null;
 
   readonly date = signal(today());
   readonly chip = signal<StatusChip>('all');
 
-  // All fixtures for the day — no status filter, filtering is client-side
+  // Date-scoped dataset (all statuses for the day)
   readonly allFixtures = signal<Fixture[]>([]);
-  readonly loading = signal(true);
+  readonly dateLoading = signal(true);
+
+  // Global live dataset (no date constraint) — always current
+  readonly liveFixtures = signal<Fixture[]>([]);
+  readonly liveLoading = signal(true);
+
   readonly error = signal(false);
 
-  // Collapsed league ids
-  readonly collapsedIds = signal<Set<number>>(new Set());
+  // First-load skeleton: show while the relevant dataset is loading
+  readonly loading = computed(() =>
+    this.chip() === 'live' ? this.liveLoading() : this.dateLoading()
+  );
 
+  readonly collapsedIds = signal<Set<number>>(new Set());
   readonly isToday = computed(() => this.date() === today());
 
   readonly chips: { id: StatusChip; label: string }[] = [
@@ -58,29 +65,28 @@ export class FixturesCalendar implements OnInit {
     { id: 'upcoming', label: 'Upcoming' },
   ];
 
-  // Count per chip — derived from full dataset so all badges are always visible
+  // Counts: live uses the global signal, others use the date-based signal
   readonly chipCounts = computed<Record<StatusChip, number>>(() => {
     const all = this.allFixtures();
     return {
       all:      all.length,
-      live:     all.filter(f => LIVE_STATUSES.includes(f.status)).length,
+      live:     this.liveFixtures().length,
       finished: all.filter(f => FINISHED_STATUSES.includes(f.status)).length,
-      upcoming: all.filter(f => UPCOMING_STATUSES.includes(f.status)).length,
+      upcoming: all.filter(f => UPCOMING_STATUSES.includes(f.status as string)).length,
     };
   });
 
-  // Fixtures visible under the active chip
+  // Fixtures to display — live chip uses its own global source
   readonly filteredFixtures = computed<Fixture[]>(() => {
-    const all = this.allFixtures();
     const c = this.chip();
+    if (c === 'live')     return this.liveFixtures();
+    const all = this.allFixtures();
     if (c === 'all')      return all;
-    if (c === 'live')     return all.filter(f => LIVE_STATUSES.includes(f.status));
     if (c === 'finished') return all.filter(f => FINISHED_STATUSES.includes(f.status));
-    if (c === 'upcoming') return all.filter(f => UPCOMING_STATUSES.includes(f.status));
+    if (c === 'upcoming') return all.filter(f => UPCOMING_STATUSES.includes(f.status as string));
     return all;
   });
 
-  // Group filtered fixtures by league, preserving kickoff order
   readonly groups = computed<FixtureGroup[]>(() => {
     const map = new Map<number, FixtureGroup>();
     for (const f of this.filteredFixtures()) {
@@ -93,59 +99,73 @@ export class FixturesCalendar implements OnInit {
   });
 
   ngOnInit(): void {
-    this.load();
+    this.loadDate();
+    this.loadLive();
+    this.startLivePolling();
   }
 
-  load(): void {
-    this.loadSubscription?.unsubscribe();
-    this.loading.set(true);
+  // Load all fixtures for the selected date (all statuses)
+  loadDate(): void {
+    this.dateLoading.set(true);
     this.error.set(false);
-    // Always fetch all statuses — filtering is done client-side
-    this.loadSubscription = this.fixtureService
+    this.fixtureService
       .getByDate(this.date())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (res) => {
-          this.allFixtures.set(res.data);
-          this.collapsedIds.set(new Set()); // reset collapse on date change
-          this.loading.set(false);
-          this.updatePolling();
-        },
-        error: () => {
-          this.error.set(true);
-          this.loading.set(false);
-        },
+        next: (res) => { this.allFixtures.set(res.data); this.dateLoading.set(false); },
+        error: () => { this.error.set(true); this.dateLoading.set(false); },
       });
+  }
+
+  // Load all globally live fixtures (no date constraint)
+  loadLive(): void {
+    this.fixtureService
+      .getLive()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => { this.liveFixtures.set(res.data); this.liveLoading.set(false); },
+        error: () => this.liveLoading.set(false),
+      });
+  }
+
+  private startLivePolling(): void {
+    this.livePolling = interval(30000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadLive());
   }
 
   selectChip(chip: StatusChip): void {
     this.chip.set(chip);
-    // No API call — filtering is client-side
+    // No reload needed — both datasets are always current
   }
 
   goToday(): void {
     this.date.set(today());
     this.chip.set('all');
-    this.load();
+    this.collapsedIds.set(new Set());
+    this.loadDate();
   }
 
   prevDay(): void {
     const d = new Date(this.date());
     d.setDate(d.getDate() - 1);
     this.date.set(toDateStr(d));
-    this.load();
+    this.collapsedIds.set(new Set());
+    this.loadDate();
   }
 
   nextDay(): void {
     const d = new Date(this.date());
     d.setDate(d.getDate() + 1);
     this.date.set(toDateStr(d));
-    this.load();
+    this.collapsedIds.set(new Set());
+    this.loadDate();
   }
 
   onDateChange(value: string): void {
     this.date.set(value);
-    this.load();
+    this.collapsedIds.set(new Set());
+    this.loadDate();
   }
 
   toggleLeague(id: number): void {
@@ -188,17 +208,5 @@ export class FixturesCalendar implements OnInit {
     return active
       ? 'bg-gray-800 text-white border-gray-800'
       : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:text-gray-700';
-  }
-
-  private updatePolling(): void {
-    const hasLive = this.allFixtures().some(f => LIVE_STATUSES.includes(f.status));
-    if (hasLive && !this.pollingSubscription) {
-      this.pollingSubscription = interval(30000)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.load());
-    } else if (!hasLive && this.pollingSubscription) {
-      this.pollingSubscription.unsubscribe();
-      this.pollingSubscription = null;
-    }
   }
 }

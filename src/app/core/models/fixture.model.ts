@@ -1,5 +1,5 @@
 export type FixtureStatus =
-  | 'NS' | '1H' | 'HT' | '2H' | 'ET' | 'BT' | 'P'
+  | 'TBD' | 'NS' | '1H' | 'HT' | '2H' | 'ET' | 'BT' | 'P'
   | 'SUSP' | 'INT' | 'FT' | 'AET' | 'PEN' | 'PST'
   | 'CANC' | 'ABD' | 'AWD' | 'WO' | 'LIVE';
 
@@ -7,10 +7,13 @@ export const LIVE_STATUSES: FixtureStatus[] = ['1H', 'HT', '2H', 'ET', 'BT', 'P'
 export const FINISHED_STATUSES: FixtureStatus[] = ['FT', 'AET', 'PEN', 'AWD', 'WO'];
 
 export const STATUS_FILTER_MAP: Record<string, FixtureStatus[]> = {
-  Upcoming: ['NS'],
-  Live: LIVE_STATUSES,
-  Finished: FINISHED_STATUSES,
-  Postponed: ['PST'],
+  Scheduled:  ['TBD', 'NS'],
+  'In Play':  LIVE_STATUSES,
+  Finished:   FINISHED_STATUSES,
+  Postponed:  ['PST'],
+  Cancelled:  ['CANC'],
+  Abandoned:  ['ABD'],
+  'Not Played': ['AWD', 'WO'],
 };
 export const STATUS_FILTER_OPTIONS = Object.keys(STATUS_FILTER_MAP);
 

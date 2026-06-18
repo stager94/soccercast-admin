@@ -78,7 +78,9 @@
           @for (c of syncCells(); track c.label) {
             <div class="flex flex-col items-center gap-0.5">
               <span class="text-gray-400">{{ c.label }}</span>
-              @if (c.synced_at) {
+              @if (c.unavailable) {
+                <span class="font-medium text-gray-300">N/A</span>
+              } @else if (c.synced_at) {
                 <span class="font-medium text-green-600">{{ c.synced_at | date:'d MMM HH:mm' }}</span>
               } @else {
                 <span class="font-medium text-red-400">—</span>
@@ -114,95 +116,131 @@
     <div class="p-4 md:p-6">
       @switch (activeTab()) {
         @case ('events') {
-          <div class="mb-4 flex items-center justify-between">
-            <span class="text-xs text-gray-400">
-              @if (fixture()!.events_synced_at) {
-                Synced {{ fixture()!.events_synced_at | date:'d MMM yyyy, HH:mm' }}
-              } @else if (isFinished()) {
-                Not synced
+          @if (!fixture()!.coverage.events) {
+            <div class="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Match events are not available for this event — the feature is not enabled in the league coverage settings.</span>
+            </div>
+          } @else {
+            <div class="mb-4 flex items-center justify-between">
+              <span class="text-xs text-gray-400">
+                @if (fixture()!.events_synced_at) {
+                  Synced {{ fixture()!.events_synced_at | date:'d MMM yyyy, HH:mm' }}
+                } @else if (isFinished()) {
+                  Not synced
+                }
+              </span>
+              @if (showSync('events')) {
+                <button type="button" (click)="sync('events')" [disabled]="!!syncingType()"
+                  class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ syncLabel('events') }}
+                </button>
               }
-            </span>
-            @if (showSync('events')) {
-              <button type="button" (click)="sync('events')" [disabled]="!!syncingType()"
-                class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
-                {{ syncLabel('events') }}
-              </button>
-            }
-          </div>
-          <app-events-timeline [fixture]="fixture()!" [events]="fixture()!.events" />
+            </div>
+            <app-events-timeline [fixture]="fixture()!" [events]="fixture()!.events" />
+          }
         }
         @case ('lineups') {
-          <div class="mb-4 flex items-center justify-between">
-            <span class="text-xs text-gray-400">
-              @if (fixture()!.lineups_synced_at) {
-                Synced {{ fixture()!.lineups_synced_at | date:'d MMM yyyy, HH:mm' }}
-              } @else if (isFinished()) {
-                Not synced
-              }
-            </span>
-            @if (showSync('lineups')) {
-              <button type="button" (click)="sync('lineups')" [disabled]="!!syncingType()"
-                class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
-                {{ syncLabel('lineups') }}
-              </button>
-            }
-          </div>
-          @if (hasLineups()) {
-            <app-lineup-columns [home]="fixture()!.lineups[0]" [away]="fixture()!.lineups[1]" />
+          @if (!fixture()!.coverage.lineups) {
+            <div class="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Lineups are not available for this event — the feature is not enabled in the league coverage settings.</span>
+            </div>
           } @else {
-            <p class="py-8 text-center text-sm text-gray-400">Lineup data not available</p>
+            <div class="mb-4 flex items-center justify-between">
+              <span class="text-xs text-gray-400">
+                @if (fixture()!.lineups_synced_at) {
+                  Synced {{ fixture()!.lineups_synced_at | date:'d MMM yyyy, HH:mm' }}
+                } @else if (isFinished()) {
+                  Not synced
+                }
+              </span>
+              @if (showSync('lineups')) {
+                <button type="button" (click)="sync('lineups')" [disabled]="!!syncingType()"
+                  class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ syncLabel('lineups') }}
+                </button>
+              }
+            </div>
+            @if (hasLineups()) {
+              <app-lineup-columns [home]="fixture()!.lineups[0]" [away]="fixture()!.lineups[1]" />
+            } @else {
+              <p class="py-8 text-center text-sm text-gray-400">Lineup data not available</p>
+            }
           }
         }
         @case ('statistics') {
-          <div class="mb-4 flex items-center justify-between">
-            <span class="text-xs text-gray-400">
-              @if (fixture()!.statistics_synced_at) {
-                Synced {{ fixture()!.statistics_synced_at | date:'d MMM yyyy, HH:mm' }}
-              } @else if (isFinished()) {
-                Not synced
-              }
-            </span>
-            @if (showSync('statistics')) {
-              <button type="button" (click)="sync('statistics')" [disabled]="!!syncingType()"
-                class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
-                {{ syncLabel('statistics') }}
-              </button>
-            }
-          </div>
-          @if (fixture()!.statistics.length === 0) {
-            <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-              Statistics not yet available
+          @if (!fixture()!.coverage.statistics_fixtures) {
+            <div class="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Fixture statistics are not available for this event — the feature is not enabled in the league coverage settings.</span>
             </div>
           } @else {
-            <app-statistics-compare
-              [statistics]="fixture()!.statistics"
-              [homeName]="fixture()!.home_team.name"
-              [awayName]="fixture()!.away_team.name"
-            />
+            <div class="mb-4 flex items-center justify-between">
+              <span class="text-xs text-gray-400">
+                @if (fixture()!.statistics_synced_at) {
+                  Synced {{ fixture()!.statistics_synced_at | date:'d MMM yyyy, HH:mm' }}
+                } @else if (isFinished()) {
+                  Not synced
+                }
+              </span>
+              @if (showSync('statistics')) {
+                <button type="button" (click)="sync('statistics')" [disabled]="!!syncingType()"
+                  class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ syncLabel('statistics') }}
+                </button>
+              }
+            </div>
+            @if (fixture()!.statistics.length === 0) {
+              <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                Statistics not yet available
+              </div>
+            } @else {
+              <app-statistics-compare
+                [statistics]="fixture()!.statistics"
+                [homeName]="fixture()!.home_team.name"
+                [awayName]="fixture()!.away_team.name"
+              />
+            }
           }
         }
         @case ('player-stats') {
-          <div class="mb-4 flex items-center justify-between">
-            <span class="text-xs text-gray-400">
-              @if (fixture()!.player_statistics_synced_at) {
-                Synced {{ fixture()!.player_statistics_synced_at | date:'d MMM yyyy, HH:mm' }}
-              } @else if (isFinished()) {
-                Not synced
-              }
-            </span>
-            @if (showSync('player_stats')) {
-              <button type="button" (click)="sync('player_stats')" [disabled]="!!syncingType()"
-                class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
-                {{ syncLabel('player_stats') }}
-              </button>
-            }
-          </div>
-          @if (fixture()!.player_stats.length === 0) {
-            <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-              Statistics not yet available
+          @if (!fixture()!.coverage.statistics_players) {
+            <div class="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Player statistics are not available for this event — the feature is not enabled in the league coverage settings.</span>
             </div>
           } @else {
-            <app-player-stats-table [teams]="fixture()!.player_stats" />
+            <div class="mb-4 flex items-center justify-between">
+              <span class="text-xs text-gray-400">
+                @if (fixture()!.player_statistics_synced_at) {
+                  Synced {{ fixture()!.player_statistics_synced_at | date:'d MMM yyyy, HH:mm' }}
+                } @else if (isFinished()) {
+                  Not synced
+                }
+              </span>
+              @if (showSync('player_stats')) {
+                <button type="button" (click)="sync('player_stats')" [disabled]="!!syncingType()"
+                  class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ syncLabel('player_stats') }}
+                </button>
+              }
+            </div>
+            @if (fixture()!.player_stats.length === 0) {
+              <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                Statistics not yet available
+              </div>
+            } @else {
+              <app-player-stats-table [teams]="fixture()!.player_stats" />
+            }
           }
         }
         @case ('api-logs') {

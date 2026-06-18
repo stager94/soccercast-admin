@@ -141,10 +141,18 @@ export interface ApiFootballRequestLog {
   updated_at: string;
 }
 
+export interface FixtureCoverage {
+  events: boolean;
+  lineups: boolean;
+  statistics_fixtures: boolean;
+  statistics_players: boolean;
+}
+
 export interface FixtureDetail extends Fixture {
   venue: string | null;
   city: string | null;
   referee: string | null;
+  coverage: FixtureCoverage;
   events: FixtureEvent[];
   lineups: FixtureLineupTeam[];
   statistics: FixtureStatistic[];

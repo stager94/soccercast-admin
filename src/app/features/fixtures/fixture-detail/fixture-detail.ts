@@ -182,14 +182,14 @@ export class FixtureDetail implements OnInit {
     return f ? LIVE_STATUSES.includes(f.status) : false;
   }
 
-  syncCells(): { label: string; synced_at: string | null }[] {
+  syncCells(): { label: string; synced_at: string | null; unavailable?: boolean }[] {
     const f = this.fixture();
     if (!f) return [];
     return [
-      { label: 'Events',     synced_at: f.events_synced_at },
-      { label: 'Lineups',    synced_at: f.lineups_synced_at },
-      { label: 'Statistics', synced_at: f.statistics_synced_at },
-      { label: 'Players',    synced_at: f.player_statistics_synced_at },
+      { label: 'Events',     synced_at: f.events_synced_at,            unavailable: !f.coverage.events },
+      { label: 'Lineups',    synced_at: f.lineups_synced_at,           unavailable: !f.coverage.lineups },
+      { label: 'Statistics', synced_at: f.statistics_synced_at,        unavailable: !f.coverage.statistics_fixtures },
+      { label: 'Players',    synced_at: f.player_statistics_synced_at, unavailable: !f.coverage.statistics_players },
     ];
   }
 

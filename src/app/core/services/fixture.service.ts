@@ -16,6 +16,12 @@ export interface FixturesFilter {
 export class FixtureService {
   private readonly http = inject(HttpClient);
 
+  getByDate(date: string, filter: { status?: string[] } = {}): Observable<{ data: Fixture[] }> {
+    const params: Record<string, string | string[]> = { date };
+    if (filter.status?.length) params['status[]'] = filter.status;
+    return this.http.get<{ data: Fixture[] }>('/admin/fixtures', { params });
+  }
+
   getAll(
     leagueId: number | string,
     seasonId: number | string,

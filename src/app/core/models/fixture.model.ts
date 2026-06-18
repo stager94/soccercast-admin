@@ -17,6 +17,16 @@ export const STATUS_FILTER_MAP: Record<string, FixtureStatus[]> = {
 };
 export const STATUS_FILTER_OPTIONS = Object.keys(STATUS_FILTER_MAP);
 
+export interface FixtureLeague {
+  id: number;
+  name: string;
+  logo_url: string | null;
+  country: {
+    name: string;
+    flag_url: string | null;
+  };
+}
+
 export interface FixtureTeam {
   id: number;
   name: string;
@@ -38,6 +48,7 @@ export interface FixturesSummary {
 export interface Fixture {
   id: number;
   date: string;
+  league?: FixtureLeague;
   round: string;
   status: FixtureStatus;
   status_elapsed: number | null;

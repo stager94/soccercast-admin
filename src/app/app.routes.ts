@@ -5,6 +5,7 @@ import { ApiFootballLogDetail } from './features/api-football-logs/api-football-
 import { ApiFootballLogsList } from './features/api-football-logs/api-football-logs-list/api-football-logs-list';
 import { CountriesList } from './features/countries/countries-list/countries-list';
 import { FixtureDetail } from './features/fixtures/fixture-detail/fixture-detail';
+import { FixturesCalendar } from './features/fixtures/fixtures-calendar/fixtures-calendar';
 import { FixturesList } from './features/fixtures/fixtures-list/fixtures-list';
 import { QueueMonitor } from './features/queue/queue-monitor/queue-monitor';
 import { LeagueDetail } from './features/leagues/league-detail/league-detail';
@@ -31,6 +32,7 @@ export const routes: Routes = [
       { path: 'seasons', component: SeasonsList },
       { path: 'leagues', component: LeaguesList },
       { path: 'leagues/:id', component: LeagueDetail },
+      { path: 'fixtures', component: FixturesCalendar },
       { path: 'leagues/:leagueId/seasons/:seasonId/fixtures', component: FixturesList },
       { path: 'fixtures/:id', component: FixtureDetail },
       { path: 'queue', component: QueueMonitor },

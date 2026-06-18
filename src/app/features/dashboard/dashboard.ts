@@ -1,8 +1,9 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { ResolutionSlot } from '../../core/models/api-football-request-log.model';
 import { ApiFootballRequestLogService } from '../../core/services/api-football-request-log.service';
-import { CountryService } from '../../core/services/country.service';
+import { DashboardService, DashboardStats } from '../../core/services/dashboard.service';
 import { ResolutionChart } from './resolution-chart';
 
 function today(): string {
@@ -11,25 +12,25 @@ function today(): string {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [ResolutionChart],
+  imports: [DecimalPipe, ResolutionChart],
   templateUrl: './dashboard.html',
 })
 export class Dashboard implements OnInit {
-  private readonly countryService = inject(CountryService);
+  private readonly dashboardService = inject(DashboardService);
   private readonly logService = inject(ApiFootballRequestLogService);
 
-  readonly countriesCount = signal<number | null>(null);
+  readonly stats = signal<DashboardStats | null>(null);
+  readonly statsLoading = signal(true);
 
   readonly chartDate = signal(today());
   readonly chartSlots = signal<ResolutionSlot[]>([]);
   readonly chartLoading = signal(false);
   readonly chartError = signal(false);
 
-
   ngOnInit(): void {
-    this.countryService.getAll(1, 1).subscribe({
-      next: (r) => this.countriesCount.set(r.meta.total_count),
-      error: () => this.countriesCount.set(null),
+    this.dashboardService.getStats().subscribe({
+      next: (s) => { this.stats.set(s); this.statsLoading.set(false); },
+      error: () => this.statsLoading.set(false),
     });
     this.loadChart();
   }

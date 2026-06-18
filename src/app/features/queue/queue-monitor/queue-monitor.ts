@@ -37,6 +37,7 @@ export class QueueMonitor implements OnInit {
   readonly jobStatusFilter = signal<JobStatus | ''>('');
   readonly jobClassFilter = signal('');
   readonly jobQueueFilter = signal('');
+  readonly expandedJobId = signal<number | null>(null);
 
   // Failed tab
   readonly failedJobs = signal<FailedJob[]>([]);
@@ -221,6 +222,18 @@ export class QueueMonitor implements OnInit {
   isRetrying(id: number): boolean { return this.retryingIds().has(id); }
   isDeleting(id: number): boolean { return this.deletingIds().has(id); }
   hasJobFilters(): boolean { return !!(this.jobStatusFilter() || this.jobClassFilter() || this.jobQueueFilter()); }
+
+  toggleJob(id: number): void {
+    this.expandedJobId.set(this.expandedJobId() === id ? null : id);
+  }
+
+  formatArgs(args: unknown): string {
+    try {
+      return JSON.stringify(args, null, 2);
+    } catch {
+      return String(args);
+    }
+  }
 
   formatError(error: string | Record<string, unknown>): string {
     if (typeof error === 'string') return error;

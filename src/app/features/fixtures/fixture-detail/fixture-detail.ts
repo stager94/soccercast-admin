@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription, interval, timer } from 'rxjs';
 
-import { FINISHED_STATUSES, LIVE_STATUSES, FixtureDetail as FixtureDetailModel } from '../../../core/models/fixture.model';
+import { ApiFootballRequestLog, FINISHED_STATUSES, LIVE_STATUSES, FixtureDetail as FixtureDetailModel } from '../../../core/models/fixture.model';
 import { FixtureService } from '../../../core/services/fixture.service';
 import { EventsTimeline } from '../../../shared/events-timeline/events-timeline';
 import { FixtureStatusBadge } from '../../../shared/fixture-status-badge/fixture-status-badge';
@@ -13,7 +13,7 @@ import { LiveTimer } from '../../../shared/live-timer/live-timer';
 import { PlayerStatsTable } from '../../../shared/player-stats-table/player-stats-table';
 import { StatisticsCompare } from '../../../shared/statistics-compare/statistics-compare';
 
-type Tab = 'events' | 'lineups' | 'statistics' | 'player-stats';
+type Tab = 'events' | 'lineups' | 'statistics' | 'player-stats' | 'api-logs';
 type SyncType = 'all' | 'events' | 'lineups' | 'statistics' | 'player_stats';
 
 @Component({
@@ -35,11 +35,16 @@ export class FixtureDetail implements OnInit {
   readonly syncingType = signal<SyncType | null>(null);
   readonly syncDoneType = signal<SyncType | null>(null);
 
+  readonly apiLogs = signal<ApiFootballRequestLog[]>([]);
+  readonly apiLogsLoading = signal(false);
+  readonly expandedLogId = signal<number | null>(null);
+
   readonly tabs: { id: Tab; label: string }[] = [
     { id: 'events', label: 'Events' },
     { id: 'lineups', label: 'Lineups' },
     { id: 'statistics', label: 'Statistics' },
     { id: 'player-stats', label: 'Player Stats' },
+    { id: 'api-logs', label: 'API Logs' },
   ];
 
   ngOnInit(): void {
@@ -121,6 +126,55 @@ export class FixtureDetail implements OnInit {
 
   setTab(tab: Tab): void {
     this.activeTab.set(tab);
+    if (tab === 'api-logs' && this.apiLogs().length === 0 && !this.apiLogsLoading()) {
+      this.loadApiLogs();
+    }
+  }
+
+  loadApiLogs(): void {
+    const f = this.fixture();
+    if (!f) return;
+    this.apiLogsLoading.set(true);
+    this.fixtureService
+      .getApiLogs(f.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (logs) => {
+          this.apiLogs.set(logs);
+          this.apiLogsLoading.set(false);
+        },
+        error: () => this.apiLogsLoading.set(false),
+      });
+  }
+
+  toggleLog(id: number): void {
+    this.expandedLogId.set(this.expandedLogId() === id ? null : id);
+  }
+
+  logStatusClass(log: ApiFootballRequestLog): string {
+    const s = log.response_status;
+    if (!s) return 'text-gray-400';
+    if (s >= 200 && s < 300) return log.resolution === 'ok' ? 'text-green-600' : 'text-amber-600';
+    return 'text-red-500';
+  }
+
+  formatJson(raw: string | null | Record<string, unknown>): string {
+    if (!raw) return '';
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return String(raw);
+    }
+  }
+
+  urlPath(url: string): string {
+    try {
+      const u = new URL(url);
+      return u.pathname + u.search;
+    } catch {
+      return url;
+    }
   }
 
   isLive(): boolean {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Fixture, FixtureDetail } from '../models/fixture.model';
+import { ApiFootballRequestLog, Fixture, FixtureDetail } from '../models/fixture.model';
 import { PaginatedResponse } from '../models/pagination.model';
 
 export interface FixturesFilter {
@@ -75,5 +75,9 @@ export class FixtureService {
 
   syncSeasonFixtures(leagueId: number | string, seasonId: number | string): Observable<void> {
     return this.http.post<void>(`/admin/leagues/${leagueId}/seasons/${seasonId}/sync_fixtures`, {});
+  }
+
+  getApiLogs(id: number | string): Observable<ApiFootballRequestLog[]> {
+    return this.http.get<ApiFootballRequestLog[]>(`/admin/fixtures/${id}/api_logs`);
   }
 }

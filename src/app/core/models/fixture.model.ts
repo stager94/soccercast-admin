@@ -125,6 +125,22 @@ export interface FixturePlayerStatsTeam {
   players: FixturePlayerStat[];
 }
 
+export interface ApiFootballRequestLog {
+  id: number;
+  http_method: string;
+  url: string;
+  request_body: string | null;
+  request_headers: Record<string, string> | null;
+  response_status: number | null;
+  response_body: string | null;
+  response_headers: Record<string, string> | null;
+  duration_ms: number | null;
+  resolution: string | null;
+  resolution_message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface FixtureDetail extends Fixture {
   venue: string | null;
   city: string | null;

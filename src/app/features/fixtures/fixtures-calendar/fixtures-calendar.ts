@@ -179,8 +179,11 @@ export class FixturesCalendar implements OnInit {
     });
   }
 
-  isCollapsed(id: number): boolean {
-    return this.collapsedIds().has(id);
+  isCollapsed(league: { id: number; priority: number }): boolean {
+    if (this.chip() === 'live') return false;
+    const defaultCollapsed = league.priority >= 500;
+    const toggled = this.collapsedIds().has(league.id);
+    return defaultCollapsed ? !toggled : toggled;
   }
 
   isLive(f: Fixture): boolean {

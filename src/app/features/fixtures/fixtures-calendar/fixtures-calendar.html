@@ -123,7 +123,7 @@
         <button
           type="button"
           class="flex w-full items-center gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3 text-left hover:bg-gray-100 transition-colors"
-          [class.border-b-0]="isCollapsed(group.league.id)"
+          [class.border-b-0]="isCollapsed(group.league)"
           (click)="toggleLeague(group.league.id)"
         >
           @if (group.league.logo_url) {
@@ -162,7 +162,7 @@
           <!-- Chevron -->
           <svg
             class="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200"
-            [class.rotate-180]="isCollapsed(group.league.id)"
+            [class.rotate-180]="isCollapsed(group.league)"
             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
           >
             <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -170,7 +170,7 @@
         </button>
 
         <!-- Fixture rows -->
-        @if (!isCollapsed(group.league.id)) {
+        @if (!isCollapsed(group.league)) {
           @for (f of group.fixtures; track f.id) {
             <div
               class="flex cursor-pointer items-center gap-3 border-b border-gray-50 px-4 py-3 last:border-0 hover:bg-gray-50 transition-colors"

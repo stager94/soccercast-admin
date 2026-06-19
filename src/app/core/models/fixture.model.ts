@@ -21,6 +21,7 @@ export interface FixtureLeague {
   id: number;
   name: string;
   logo_url: string | null;
+  priority: number;
   country: {
     name: string;
     flag_url: string | null;

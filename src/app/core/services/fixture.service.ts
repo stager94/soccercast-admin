@@ -49,10 +49,6 @@ export class FixtureService {
     return this.http.get<FixtureDetail>(`/admin/fixtures/${id}`);
   }
 
-  retroSync(leagueId: number): Observable<void> {
-    return this.http.post<void>('/admin/fixtures/retro_sync', { league_id: leagueId });
-  }
-
   syncDetails(id: number | string): Observable<void> {
     return this.http.post<void>(`/admin/fixtures/${id}/sync_details`, {});
   }

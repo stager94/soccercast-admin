@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { League, LeagueDetail } from '../models/league.model';
+import { League, LeagueDetail, LeagueSeason } from '../models/league.model';
 import { PaginatedResponse } from '../models/pagination.model';
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +29,16 @@ export class LeagueService {
 
   update(id: number, enabled: boolean): Observable<League> {
     return this.http.patch<League>(`/admin/leagues/${id}`, { league: { enabled } });
+  }
+
+  updateLeagueSeason(
+    leagueId: number,
+    seasonId: number,
+    data: Partial<Pick<LeagueSeason, 'fixtures_sync_disabled'>>,
+  ): Observable<LeagueSeason> {
+    return this.http.patch<LeagueSeason>(`/admin/leagues/${leagueId}/seasons/${seasonId}`, {
+      league_season: data,
+    });
   }
 
   sync(): Observable<void> {

@@ -45,6 +45,7 @@ export class LeagueDetail implements OnInit {
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly toggling = signal(false);
+  readonly togglingSeasonSyncId = signal<number | null>(null);
   readonly showPastSeasons = signal(false);
   readonly expandedPastIds = signal<Set<number>>(new Set());
 
@@ -87,6 +88,28 @@ export class LeagueDetail implements OnInit {
       },
       error: () => this.toggling.set(false),
     });
+  }
+
+  toggleFixturesSync(ls: LeagueSeason): void {
+    if (this.togglingSeasonSyncId() !== null) return;
+    const league = this.league();
+    if (!league) return;
+    this.togglingSeasonSyncId.set(ls.id);
+    this.leagueService
+      .updateLeagueSeason(league.id, ls.id, { fixtures_sync_disabled: !ls.fixtures_sync_disabled })
+      .subscribe({
+        next: (updated) => {
+          this.league.update((l) => {
+            if (!l) return l;
+            return {
+              ...l,
+              league_seasons: l.league_seasons.map((s) => (s.id === updated.id ? { ...s, ...updated } : s)),
+            };
+          });
+          this.togglingSeasonSyncId.set(null);
+        },
+        error: () => this.togglingSeasonSyncId.set(null),
+      });
   }
 
   toggleShowPastSeasons(): void {

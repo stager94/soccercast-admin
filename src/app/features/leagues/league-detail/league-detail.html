@@ -126,6 +126,23 @@
                 {{ cs.start_date | date: 'MMM d, yyyy' }} – {{ cs.end_date | date: 'MMM d, yyyy' }}
               </span>
             </div>
+            <div class="mb-3 flex items-center gap-2">
+              <span class="text-xs text-gray-500">Fixtures sync</span>
+              <button
+                type="button"
+                (click)="toggleFixturesSync(cs)"
+                [disabled]="togglingSeasonSyncId() === cs.id"
+                class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                [class.bg-brand-500]="!cs.fixtures_sync_disabled"
+                [class.bg-gray-200]="cs.fixtures_sync_disabled"
+              >
+                <span
+                  class="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
+                  [class.translate-x-4]="!cs.fixtures_sync_disabled"
+                  [class.translate-x-0]="cs.fixtures_sync_disabled"
+                ></span>
+              </button>
+            </div>
             <div class="flex flex-wrap gap-1.5">
               @for (chip of coverageChips(cs.coverage); track chip.label) {
                 <span
@@ -202,6 +219,23 @@
 
                     @if (isPastExpanded(ls.id)) {
                       <div class="px-4 pb-3">
+                        <div class="mb-2 flex items-center gap-2">
+                          <span class="text-xs text-gray-500">Fixtures sync</span>
+                          <button
+                            type="button"
+                            (click)="toggleFixturesSync(ls)"
+                            [disabled]="togglingSeasonSyncId() === ls.id"
+                            class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            [class.bg-brand-500]="!ls.fixtures_sync_disabled"
+                            [class.bg-gray-200]="ls.fixtures_sync_disabled"
+                          >
+                            <span
+                              class="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
+                              [class.translate-x-4]="!ls.fixtures_sync_disabled"
+                              [class.translate-x-0]="ls.fixtures_sync_disabled"
+                            ></span>
+                          </button>
+                        </div>
                         <div class="flex flex-wrap gap-1.5">
                           @for (chip of coverageChips(ls.coverage); track chip.label) {
                             <span

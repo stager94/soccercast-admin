@@ -17,6 +17,7 @@ export interface LeagueSeason {
   start_date: string;
   end_date: string;
   current: boolean;
+  fixtures_sync_disabled: boolean;
   season: { id: number; year: number };
   coverage: Record<string, unknown>;
   fixtures_summary: FixturesSummary | null;

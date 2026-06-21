@@ -53,10 +53,12 @@
       </div>
     </div>
 
-    <div class="relative mt-2" (mouseleave)="hoveredIndex.set(null)">
+    <div class="relative mt-2 overflow-x-auto" (mouseleave)="hoveredIndex.set(null)">
       <svg
         [attr.viewBox]="'0 0 ' + svgW + ' ' + svgH"
-        class="w-full"
+        [attr.width]="svgW"
+        [attr.height]="svgH"
+        class="max-w-full"
         style="display:block"
       >
         <defs>

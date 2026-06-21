@@ -1,0 +1,110 @@
+<div class="flex items-center gap-6 text-xs text-gray-500 mb-3">
+  <div>
+    Peak: <span class="font-semibold text-gray-800">{{ peak() }} req/min</span>
+  </div>
+  <div>
+    Avg: <span class="font-semibold text-gray-800">{{ avg().toFixed(1) }} req/min</span>
+  </div>
+</div>
+
+<div class="relative overflow-x-auto" (mouseleave)="hoveredIndex.set(null)">
+  <svg
+    [attr.viewBox]="'0 0 ' + svgW + ' ' + svgH"
+    [attr.width]="svgW"
+    [attr.height]="svgH"
+    class="max-w-full"
+    style="display:block"
+  >
+    <defs>
+      <linearGradient id="rpmGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.01"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Y gridlines + labels -->
+    @for (tick of yTicks(); track tick.value) {
+      <line
+        [attr.x1]="cpl" [attr.y1]="tick.y"
+        [attr.x2]="cpl + cw" [attr.y2]="tick.y"
+        stroke="#e4e7ec" stroke-width="1"
+      />
+      <text
+        [attr.x]="cpl - 5" [attr.y]="tick.y + 4"
+        font-size="9" fill="#98a2b3" text-anchor="end"
+      >{{ tick.value }}</text>
+    }
+
+    <!-- Area fill -->
+    <path [attr.d]="areaPath()" fill="url(#rpmGrad)" />
+
+    <!-- Line -->
+    <path
+      [attr.d]="linePath()"
+      fill="none"
+      stroke="#8b5cf6"
+      stroke-width="1.5"
+      stroke-linejoin="round"
+      stroke-linecap="round"
+    />
+
+    <!-- Hovered point -->
+    @if (hoveredPoint()) {
+      <line
+        [attr.x1]="hoveredPoint()!.x" [attr.y1]="cpt"
+        [attr.x2]="hoveredPoint()!.x" [attr.y2]="cpt + ch"
+        stroke="#8b5cf6" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"
+      />
+      <circle
+        [attr.cx]="hoveredPoint()!.x"
+        [attr.cy]="hoveredPoint()!.y"
+        r="3" fill="#8b5cf6" stroke="white" stroke-width="1.5"
+      />
+    }
+
+    <!-- Invisible hover rects -->
+    @for (pt of chartPoints(); track pt.index) {
+      <rect
+        [attr.x]="cpl + pt.index * slotWidth()"
+        [attr.y]="cpt"
+        [attr.width]="slotWidth()"
+        [attr.height]="ch"
+        fill="transparent"
+        (mouseenter)="hoveredIndex.set(pt.index)"
+      />
+    }
+
+    <!-- X-axis baseline -->
+    <line
+      [attr.x1]="cpl" [attr.y1]="cpt + ch"
+      [attr.x2]="cpl + cw" [attr.y2]="cpt + ch"
+      stroke="#e4e7ec" stroke-width="1"
+    />
+
+    <!-- X labels -->
+    @for (label of xLabels(); track label.time) {
+      <text
+        [attr.x]="label.x" [attr.y]="cpt + ch + 15"
+        font-size="9" fill="#98a2b3" text-anchor="middle"
+      >{{ label.time }}</text>
+    }
+  </svg>
+
+  <!-- Tooltip -->
+  @if (hoveredPoint(); as pt) {
+    <div
+      class="pointer-events-none absolute z-10 -translate-x-1/2 rounded-lg border border-gray-100 bg-white px-3 py-2 shadow-lg"
+      [style.left]="tooltipLeft(pt)"
+      style="top: 8px"
+    >
+      <p class="mb-1 text-xs font-semibold text-gray-700">{{ pt.slot.time }}</p>
+      <div class="flex items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-1.5">
+          <span class="h-1.5 w-1.5 rounded-full bg-violet-500"></span>
+          <span class="text-gray-500">Requests</span>
+        </div>
+        <span class="font-semibold text-gray-800">{{ pt.slot.requests }}</span>
+      </div>
+    </div>
+  }
+</div>

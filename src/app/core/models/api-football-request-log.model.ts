@@ -13,6 +13,18 @@ export interface ResolutionDistribution {
   slots: ResolutionSlot[];
 }
 
+export interface RpmSlot {
+  time: string;
+  requests: number;
+}
+
+export interface RpmResponse {
+  window_minutes: number;
+  start_time: string;
+  end_time: string;
+  slots: RpmSlot[];
+}
+
 export interface ApiFootballRequestLog {
   id: number;
   http_method: string;

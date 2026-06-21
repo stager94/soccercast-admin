@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { ApiFootballRequestLog, ResolutionDistribution } from '../models/api-football-request-log.model';
+import { ApiFootballRequestLog, ResolutionDistribution, RpmResponse } from '../models/api-football-request-log.model';
 import { PaginatedResponse } from '../models/pagination.model';
 
 @Injectable({ providedIn: 'root' })
@@ -26,5 +26,15 @@ export class ApiFootballRequestLogService {
       '/admin/api_football_request_logs/resolution_distribution',
       { params },
     );
+  }
+
+  getRpm(windowMinutes?: number, date?: string): Observable<RpmResponse> {
+    const params: Record<string, string | number> = {};
+    if (date) {
+      params['date'] = date;
+    } else {
+      params['window'] = windowMinutes ?? 60;
+    }
+    return this.http.get<RpmResponse>('/admin/api_football_request_logs/rpm', { params });
   }
 }

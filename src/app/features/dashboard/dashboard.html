@@ -191,80 +191,75 @@
   }
 </div>
 
-<!-- RPM chart -->
-<div class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 md:p-6">
-  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-    <div>
-      <h2 class="text-base font-semibold text-gray-900">Requests per Minute</h2>
-      <p class="mt-0.5 text-xs text-gray-400">
-        @if (rpmMode() === 'live') { Last {{ rpmWindow() }} minutes }
-        @else { All day · {{ rpmDate() }} }
-      </p>
-    </div>
-    <div class="flex items-center gap-2">
-      <!-- Mode toggle -->
-      <div class="flex rounded-lg border border-gray-200 p-0.5">
-        <button
-          type="button"
-          (click)="onRpmModeChange('live')"
-          [class]="rpmMode() === 'live'
-            ? 'rounded-md bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700'
-            : 'rounded-md px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-700'"
-        >Live</button>
-        <button
-          type="button"
-          (click)="onRpmModeChange('daily')"
-          [class]="rpmMode() === 'daily'
-            ? 'rounded-md bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700'
-            : 'rounded-md px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-700'"
-        >Daily</button>
+<!-- RPM charts -->
+<div class="mt-4 grid gap-4 lg:grid-cols-2">
+
+  <!-- Live RPM -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-4 md:p-6">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-semibold text-gray-900">Live RPM</h2>
+        <p class="mt-0.5 text-xs text-gray-400">Last {{ rpmWindow() }} minutes</p>
       </div>
-
-      <!-- Live: window buttons -->
-      @if (rpmMode() === 'live') {
-        <div class="flex items-center gap-1">
-          @for (w of rpmWindows; track w) {
-            <button
-              type="button"
-              (click)="onRpmWindowChange(w)"
-              [class]="w === rpmWindow()
-                ? 'rounded-lg bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-700'
-                : 'rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-50'"
-            >{{ w }}m</button>
-          }
-        </div>
-      }
-
-      <!-- Daily: date picker -->
-      @if (rpmMode() === 'daily') {
-        <div class="flex items-center gap-2">
-          @if (!isRpmToday()) {
-            <button
-              type="button"
-              (click)="goRpmToday()"
-              class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-50"
-            >Today</button>
-          }
-          <input
-            type="date"
-            class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
-            [value]="rpmDate()"
-            (change)="onRpmDateChange($any($event.target).value)"
-          />
-        </div>
-      }
+      <div class="flex items-center gap-1">
+        @for (w of rpmWindows; track w) {
+          <button
+            type="button"
+            (click)="onRpmWindowChange(w)"
+            [class]="w === rpmWindow()
+              ? 'rounded-lg bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-700'
+              : 'rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-50'"
+          >{{ w }}m</button>
+        }
+      </div>
     </div>
+    @if (rpmLiveLoading()) {
+      <div class="flex h-40 items-center justify-center">
+        <p class="text-sm text-gray-400">Loading…</p>
+      </div>
+    } @else if (rpmLiveError()) {
+      <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        Failed to load data.
+      </div>
+    } @else {
+      <app-rpm-chart [slots]="rpmLiveSlots()" />
+    }
   </div>
 
-  @if (rpmLoading()) {
-    <div class="flex h-48 items-center justify-center">
-      <p class="text-sm text-gray-400">Loading…</p>
+  <!-- Daily RPM -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-4 md:p-6">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-semibold text-gray-900">Daily RPM</h2>
+        <p class="mt-0.5 text-xs text-gray-400">{{ rpmDate() }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        @if (!isRpmToday()) {
+          <button
+            type="button"
+            (click)="goRpmToday()"
+            class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-50"
+          >Today</button>
+        }
+        <input
+          type="date"
+          class="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+          [value]="rpmDate()"
+          (change)="onRpmDateChange($any($event.target).value)"
+        />
+      </div>
     </div>
-  } @else if (rpmError()) {
-    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-      Failed to load RPM data.
-    </div>
-  } @else {
-    <app-rpm-chart [slots]="rpmSlots()" />
-  }
+    @if (rpmDailyLoading()) {
+      <div class="flex h-40 items-center justify-center">
+        <p class="text-sm text-gray-400">Loading…</p>
+      </div>
+    } @else if (rpmDailyError()) {
+      <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        Failed to load data.
+      </div>
+    } @else {
+      <app-rpm-chart [slots]="rpmDailySlots()" />
+    }
+  </div>
+
 </div>

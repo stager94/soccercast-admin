@@ -107,8 +107,14 @@ export class RpmChart {
     return n > 0 ? CW / n : 0;
   }
 
-  tooltipLeft(pt: ChartPoint): string {
-    const pct = ((pt.x - CPL) / CW) * 100;
-    return `calc(${pct.toFixed(1)}% + ${CPL}px)`;
+  tooltipAnchor(pt: ChartPoint): { left: string; right: string } {
+    const offsetRight = pt.x > SVG_W / 2;
+    return offsetRight
+      ? { left: `${(pt.x - 8).toFixed(1)}px`, right: 'auto' }
+      : { left: `${(pt.x + 8).toFixed(1)}px`, right: 'auto' };
+  }
+
+  tooltipTransform(pt: ChartPoint): string {
+    return pt.x > SVG_W / 2 ? 'translateX(-100%)' : 'translateX(0)';
   }
 }

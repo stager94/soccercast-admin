@@ -17,7 +17,6 @@ function today(): string {
 
 const RPM_WINDOWS = [15, 30, 60] as const;
 type RpmWindow = typeof RPM_WINDOWS[number];
-type RpmMode = 'live' | 'daily';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,13 +35,18 @@ export class Dashboard implements OnInit {
   readonly chartLoading = signal(false);
   readonly chartError = signal(false);
 
+  // Live RPM
   readonly rpmWindows = RPM_WINDOWS;
   readonly rpmWindow = signal<RpmWindow>(60);
-  readonly rpmMode = signal<RpmMode>('live');
+  readonly rpmLiveSlots = signal<RpmSlot[]>([]);
+  readonly rpmLiveLoading = signal(false);
+  readonly rpmLiveError = signal(false);
+
+  // Daily RPM
   readonly rpmDate = signal(today());
-  readonly rpmSlots = signal<RpmSlot[]>([]);
-  readonly rpmLoading = signal(false);
-  readonly rpmError = signal(false);
+  readonly rpmDailySlots = signal<RpmSlot[]>([]);
+  readonly rpmDailyLoading = signal(false);
+  readonly rpmDailyError = signal(false);
 
   ngOnInit(): void {
     this.dashboardService.getStats().subscribe({
@@ -50,7 +54,8 @@ export class Dashboard implements OnInit {
       error: () => this.statsLoading.set(false),
     });
     this.loadChart();
-    this.loadRpm();
+    this.loadLiveRpm();
+    this.loadDailyRpm();
   }
 
   loadChart(): void {
@@ -62,16 +67,21 @@ export class Dashboard implements OnInit {
     });
   }
 
-  loadRpm(): void {
-    this.rpmLoading.set(true);
-    this.rpmError.set(false);
-    const isDaily = this.rpmMode() === 'daily';
-    this.logService.getRpm(
-      isDaily ? undefined : this.rpmWindow(),
-      isDaily ? this.rpmDate() : undefined,
-    ).subscribe({
-      next: (r) => { this.rpmSlots.set(r.slots); this.rpmLoading.set(false); },
-      error: () => { this.rpmError.set(true); this.rpmLoading.set(false); },
+  loadLiveRpm(): void {
+    this.rpmLiveLoading.set(true);
+    this.rpmLiveError.set(false);
+    this.logService.getRpm(this.rpmWindow()).subscribe({
+      next: (r) => { this.rpmLiveSlots.set(r.slots); this.rpmLiveLoading.set(false); },
+      error: () => { this.rpmLiveError.set(true); this.rpmLiveLoading.set(false); },
+    });
+  }
+
+  loadDailyRpm(): void {
+    this.rpmDailyLoading.set(true);
+    this.rpmDailyError.set(false);
+    this.logService.getRpm(undefined, this.rpmDate()).subscribe({
+      next: (r) => { this.rpmDailySlots.set(r.slots); this.rpmDailyLoading.set(false); },
+      error: () => { this.rpmDailyError.set(true); this.rpmDailyLoading.set(false); },
     });
   }
 
@@ -82,17 +92,12 @@ export class Dashboard implements OnInit {
 
   onRpmWindowChange(w: RpmWindow): void {
     this.rpmWindow.set(w);
-    this.loadRpm();
-  }
-
-  onRpmModeChange(mode: RpmMode): void {
-    this.rpmMode.set(mode);
-    this.loadRpm();
+    this.loadLiveRpm();
   }
 
   onRpmDateChange(value: string): void {
     this.rpmDate.set(value);
-    this.loadRpm();
+    this.loadDailyRpm();
   }
 
   isToday(): boolean {
@@ -110,6 +115,6 @@ export class Dashboard implements OnInit {
 
   goRpmToday(): void {
     this.rpmDate.set(today());
-    this.loadRpm();
+    this.loadDailyRpm();
   }
 }

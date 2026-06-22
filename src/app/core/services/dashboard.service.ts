@@ -10,6 +10,8 @@ export interface DashboardStats {
   league_seasons_without_fixtures: number;
   fixtures: number;
   live_fixtures: number;
+  top_league_fixtures: number;
+  top_league_fixtures_pending_details: number;
   venues: number;
   teams: number;
 }

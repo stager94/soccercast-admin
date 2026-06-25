@@ -12,13 +12,17 @@ import { LineupColumns } from '../../../shared/lineup-columns/lineup-columns';
 import { LiveTimer } from '../../../shared/live-timer/live-timer';
 import { PlayerStatsTable } from '../../../shared/player-stats-table/player-stats-table';
 import { StatisticsCompare } from '../../../shared/statistics-compare/statistics-compare';
+import { XgPrediction } from '../../../shared/xg-prediction/xg-prediction';
 
-type Tab = 'events' | 'lineups' | 'statistics' | 'player-stats' | 'api-logs';
+type Tab = 'prediction' | 'events' | 'lineups' | 'statistics' | 'player-stats' | 'api-logs';
 type SyncType = 'all' | 'events' | 'lineups' | 'statistics' | 'player_stats';
+
+const PREDICT_POLL_INTERVAL_MS = 3000;
+const PREDICT_POLL_MAX_ATTEMPTS = 10;
 
 @Component({
   selector: 'app-fixture-detail',
-  imports: [DatePipe, FixtureStatusBadge, LiveTimer, EventsTimeline, LineupColumns, StatisticsCompare, PlayerStatsTable],
+  imports: [DatePipe, FixtureStatusBadge, LiveTimer, EventsTimeline, LineupColumns, StatisticsCompare, PlayerStatsTable, XgPrediction],
   templateUrl: './fixture-detail.html',
 })
 export class FixtureDetail implements OnInit {
@@ -39,7 +43,11 @@ export class FixtureDetail implements OnInit {
   readonly apiLogsLoading = signal(false);
   readonly expandedLogId = signal<number | null>(null);
 
+  readonly predicting = signal(false);
+  readonly predictError = signal(false);
+
   readonly tabs: { id: Tab; label: string }[] = [
+    { id: 'prediction', label: 'Prediction' },
     { id: 'events', label: 'Events' },
     { id: 'lineups', label: 'Lineups' },
     { id: 'statistics', label: 'Statistics' },
@@ -225,5 +233,56 @@ export class FixtureDetail implements OnInit {
   isFinished(): boolean {
     const f = this.fixture();
     return f ? FINISHED_STATUSES.includes(f.status) : false;
+  }
+
+  hasPrediction(): boolean {
+    return !!this.fixture()?.prediction;
+  }
+
+  predict(): void {
+    const f = this.fixture();
+    if (!f || this.predicting()) return;
+    this.predicting.set(true);
+    this.predictError.set(false);
+
+    this.fixtureService
+      .predict(f.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.pollForPrediction(String(f.id), 0),
+        error: () => {
+          this.predicting.set(false);
+          this.predictError.set(true);
+        },
+      });
+  }
+
+  // The prediction is computed by a background job, so poll the fixture
+  // until it appears (or we give up after a few attempts).
+  private pollForPrediction(id: string, attempt: number): void {
+    if (attempt >= PREDICT_POLL_MAX_ATTEMPTS) {
+      this.predicting.set(false);
+      this.predictError.set(true);
+      return;
+    }
+
+    timer(PREDICT_POLL_INTERVAL_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.fixtureService
+          .getById(id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (f) => {
+              this.fixture.set(f);
+              if (f.prediction) {
+                this.predicting.set(false);
+              } else {
+                this.pollForPrediction(id, attempt + 1);
+              }
+            },
+            error: () => this.pollForPrediction(id, attempt + 1),
+          });
+      });
   }
 }

@@ -149,6 +149,37 @@ export interface FixtureCoverage {
   statistics_players: boolean;
 }
 
+export type ConfidenceLabel = 'low' | 'medium' | 'high';
+
+export interface FixtureXgPrediction {
+  id: number;
+  home_xg: number;
+  away_xg: number;
+  score_line: string;
+  home_attack: number | null;
+  home_defence: number | null;
+  away_attack: number | null;
+  away_defence: number | null;
+  result: { home: number | null; draw: number | null; away: number | null };
+  over_under_2_5: { over: number | null; under: number | null };
+  btts: { yes: number | null; no: number | null };
+  likely_score: {
+    home: number | null;
+    away: number | null;
+    label: string | null;
+    prob: number | null;
+  };
+  confidence: { score: number | null; label: ConfidenceLabel | null };
+  markets: {
+    totals?: Record<string, { over: number; under: number }>;
+    handicaps?: Record<string, { home: number; away: number }>;
+  };
+  model_version: string;
+  fixtures_used_home: number;
+  fixtures_used_away: number;
+  computed_at: string;
+}
+
 export interface FixtureDetail extends Fixture {
   venue: string | null;
   city: string | null;
@@ -158,4 +189,5 @@ export interface FixtureDetail extends Fixture {
   lineups: FixtureLineupTeam[];
   statistics: FixtureStatistic[];
   player_stats: FixturePlayerStatsTeam[];
+  prediction: FixtureXgPrediction | null;
 }

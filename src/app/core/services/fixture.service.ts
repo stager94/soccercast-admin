@@ -76,4 +76,8 @@ export class FixtureService {
   getApiLogs(id: number | string): Observable<ApiFootballRequestLog[]> {
     return this.http.get<ApiFootballRequestLog[]>(`/admin/fixtures/${id}/api_logs`);
   }
+
+  predict(id: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/fixtures/${id}/predict`, {});
+  }
 }

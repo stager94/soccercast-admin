@@ -9,6 +9,7 @@ export interface TeamsFilter {
   page?: number;
   per_page?: number;
   name?: string;
+  national?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +22,7 @@ export class TeamService {
       per_page: filter.per_page ?? 25,
     };
     if (filter.name) params['name'] = filter.name;
+    if (filter.national !== undefined) params['national'] = String(filter.national);
     return this.http.get<PaginatedResponse<TeamListItem>>('/admin/teams', { params });
   }
 

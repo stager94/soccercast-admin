@@ -161,6 +161,46 @@
             </div>
           }
         }
+        @case ('dixon-coles') {
+          @if (fixture()!.dc_prediction) {
+            <app-dc-prediction
+              [prediction]="fixture()!.dc_prediction!"
+              [homeName]="fixture()!.home_team.name"
+              [awayName]="fixture()!.away_team.name"
+            />
+          } @else {
+            <div class="flex flex-col items-center gap-4 py-10 text-center">
+              <svg class="h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+              <div>
+                <p class="text-sm font-medium text-gray-600">No Dixon-Coles prediction yet</p>
+                <p class="mt-1 text-xs text-gray-400">Calculate a Dixon-Coles prediction from the fitted team parameters. If the season has no parameters yet, they will be fitted first (this can take a little longer).</p>
+              </div>
+              <button
+                type="button"
+                (click)="calculateDc()"
+                [disabled]="calculatingDc()"
+                class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                @if (calculatingDc()) {
+                  <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  Calculating…
+                } @else {
+                  Calculate
+                }
+              </button>
+              @if (calculateDcError()) {
+                <p class="text-xs text-red-500">
+                  Could not calculate — the league season may not have enough finished matches to fit Dixon-Coles parameters. Try again later.
+                </p>
+              }
+            </div>
+          }
+        }
         @case ('events') {
           @if (!fixture()!.coverage.events) {
             <div class="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">

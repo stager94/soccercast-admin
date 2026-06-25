@@ -80,4 +80,8 @@ export class FixtureService {
   predict(id: number | string): Observable<void> {
     return this.http.post<void>(`/admin/fixtures/${id}/predict`, {});
   }
+
+  calculateDc(id: number | string): Observable<void> {
+    return this.http.post<void>(`/admin/fixtures/${id}/calculate_dc`, {});
+  }
 }

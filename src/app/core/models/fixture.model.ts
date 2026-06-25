@@ -180,6 +180,37 @@ export interface FixtureXgPrediction {
   computed_at: string;
 }
 
+export interface FixtureDcPrediction {
+  id: number;
+  home_lambda: number;
+  away_lambda: number;
+  score_line: string;
+  params: {
+    home: { alpha: number | null; beta: number | null };
+    away: { alpha: number | null; beta: number | null };
+    gamma: number | null;
+    rho: number | null;
+  };
+  result: { home: number | null; draw: number | null; away: number | null };
+  over_under_2_5: { over: number | null; under: number | null };
+  btts: { yes: number | null; no: number | null };
+  likely_score: {
+    home: number | null;
+    away: number | null;
+    label: string | null;
+    prob: number | null;
+  };
+  markets: {
+    totals?: Record<string, { over: number; under: number }>;
+    handicaps?: Record<string, { home: number; away: number }>;
+  };
+  converged: boolean;
+  fixtures_used_home: number;
+  fixtures_used_away: number;
+  model_version: string;
+  computed_at: string;
+}
+
 export interface FixtureDetail extends Fixture {
   venue: string | null;
   city: string | null;
@@ -190,4 +221,5 @@ export interface FixtureDetail extends Fixture {
   statistics: FixtureStatistic[];
   player_stats: FixturePlayerStatsTeam[];
   prediction: FixtureXgPrediction | null;
+  dc_prediction: FixtureDcPrediction | null;
 }

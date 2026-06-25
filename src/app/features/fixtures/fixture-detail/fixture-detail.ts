@@ -13,16 +13,21 @@ import { LiveTimer } from '../../../shared/live-timer/live-timer';
 import { PlayerStatsTable } from '../../../shared/player-stats-table/player-stats-table';
 import { StatisticsCompare } from '../../../shared/statistics-compare/statistics-compare';
 import { XgPrediction } from '../../../shared/xg-prediction/xg-prediction';
+import { DcPrediction } from '../../../shared/dc-prediction/dc-prediction';
 
-type Tab = 'prediction' | 'events' | 'lineups' | 'statistics' | 'player-stats' | 'api-logs';
+type Tab = 'prediction' | 'dixon-coles' | 'events' | 'lineups' | 'statistics' | 'player-stats' | 'api-logs';
 type SyncType = 'all' | 'events' | 'lineups' | 'statistics' | 'player_stats';
 
 const PREDICT_POLL_INTERVAL_MS = 3000;
 const PREDICT_POLL_MAX_ATTEMPTS = 10;
 
+// Dixon-Coles may run an MLE fit on first calculation, so give it a longer budget.
+const DC_POLL_INTERVAL_MS = 5000;
+const DC_POLL_MAX_ATTEMPTS = 24;
+
 @Component({
   selector: 'app-fixture-detail',
-  imports: [DatePipe, RouterLink, FixtureStatusBadge, LiveTimer, EventsTimeline, LineupColumns, StatisticsCompare, PlayerStatsTable, XgPrediction],
+  imports: [DatePipe, RouterLink, FixtureStatusBadge, LiveTimer, EventsTimeline, LineupColumns, StatisticsCompare, PlayerStatsTable, XgPrediction, DcPrediction],
   templateUrl: './fixture-detail.html',
 })
 export class FixtureDetail implements OnInit {
@@ -46,8 +51,12 @@ export class FixtureDetail implements OnInit {
   readonly predicting = signal(false);
   readonly predictError = signal(false);
 
+  readonly calculatingDc = signal(false);
+  readonly calculateDcError = signal(false);
+
   readonly tabs: { id: Tab; label: string }[] = [
     { id: 'prediction', label: 'Prediction' },
+    { id: 'dixon-coles', label: 'Dixon&Coles' },
     { id: 'events', label: 'Events' },
     { id: 'lineups', label: 'Lineups' },
     { id: 'statistics', label: 'Statistics' },
@@ -282,6 +291,57 @@ export class FixtureDetail implements OnInit {
               }
             },
             error: () => this.pollForPrediction(id, attempt + 1),
+          });
+      });
+  }
+
+  hasDcPrediction(): boolean {
+    return !!this.fixture()?.dc_prediction;
+  }
+
+  calculateDc(): void {
+    const f = this.fixture();
+    if (!f || this.calculatingDc()) return;
+    this.calculatingDc.set(true);
+    this.calculateDcError.set(false);
+
+    this.fixtureService
+      .calculateDc(f.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.pollForDcPrediction(String(f.id), 0),
+        error: () => {
+          this.calculatingDc.set(false);
+          this.calculateDcError.set(true);
+        },
+      });
+  }
+
+  // The DC calculation runs in a background job (and may fit parameters first),
+  // so poll the fixture until the prediction appears.
+  private pollForDcPrediction(id: string, attempt: number): void {
+    if (attempt >= DC_POLL_MAX_ATTEMPTS) {
+      this.calculatingDc.set(false);
+      this.calculateDcError.set(true);
+      return;
+    }
+
+    timer(DC_POLL_INTERVAL_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.fixtureService
+          .getById(id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (f) => {
+              this.fixture.set(f);
+              if (f.dc_prediction) {
+                this.calculatingDc.set(false);
+              } else {
+                this.pollForDcPrediction(id, attempt + 1);
+              }
+            },
+            error: () => this.pollForDcPrediction(id, attempt + 1),
           });
       });
   }

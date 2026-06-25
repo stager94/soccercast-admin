@@ -9,6 +9,8 @@ import { TeamListItem } from '../../../core/models/team.model';
 import { TeamService } from '../../../core/services/team.service';
 import { Pagination } from '../../../shared/pagination/pagination';
 
+type TeamScope = 'all' | 'club' | 'national';
+
 @Component({
   selector: 'app-teams-list',
   imports: [DecimalPipe, RouterLink, Pagination],
@@ -24,6 +26,7 @@ export class TeamsList implements OnInit {
   readonly loading = signal(true);
   readonly error = signal(false);
   readonly nameQuery = signal('');
+  readonly scope = signal<TeamScope>('all');
 
   ngOnInit(): void {
     this.search$
@@ -37,6 +40,11 @@ export class TeamsList implements OnInit {
     this.search$.next();
   }
 
+  setScope(scope: TeamScope): void {
+    this.scope.set(scope);
+    this.load(1);
+  }
+
   // Global rank across all pages (leaderboard is ordered by elo desc server-side).
   rank(index: number): number {
     const meta = this.meta();
@@ -47,7 +55,8 @@ export class TeamsList implements OnInit {
 
   load(page: number): void {
     this.loading.set(true);
-    this.teamService.getAll({ page, name: this.nameQuery() || undefined }).subscribe({
+    const national = this.scope() === 'all' ? undefined : this.scope() === 'national';
+    this.teamService.getAll({ page, name: this.nameQuery() || undefined, national }).subscribe({
       next: (response) => {
         this.teams.set(response.data);
         this.meta.set(response.meta);

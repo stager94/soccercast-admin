@@ -1,0 +1,69 @@
+@if (points().length === 0) {
+  <p class="py-6 text-center text-sm text-gray-500">No Elo history yet.</p>
+} @else {
+  <div class="relative" (mouseleave)="hoveredIndex.set(null)">
+    <svg [attr.viewBox]="'0 0 ' + svgW + ' ' + svgH" class="w-full" style="display:block">
+      <defs>
+        <linearGradient id="eloGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.01" />
+        </linearGradient>
+      </defs>
+
+      <!-- Y gridlines + labels -->
+      @for (tick of yTicks(); track tick.y) {
+        <line [attr.x1]="padL" [attr.y1]="tick.y" [attr.x2]="padL + cw" [attr.y2]="tick.y" stroke="#e4e7ec" stroke-width="1" />
+        <text [attr.x]="padL - 6" [attr.y]="tick.y + 4" font-size="9" fill="#98a2b3" text-anchor="end">{{ tick.value }}</text>
+      }
+
+      <!-- Area + line -->
+      <path [attr.d]="areaPath()" fill="url(#eloGrad)" />
+      <path [attr.d]="linePath()" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+
+      <!-- Hovered marker -->
+      @if (hoveredPoint(); as hp) {
+        <line [attr.x1]="hp.x" [attr.y1]="padT" [attr.x2]="hp.x" [attr.y2]="padT + ch" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.5" />
+        <circle [attr.cx]="hp.x" [attr.cy]="hp.y" r="3.5" fill="#3b82f6" stroke="white" stroke-width="1.5" />
+      }
+
+      <!-- Invisible hover targets -->
+      @for (cp of chartPoints(); track cp.index) {
+        <rect
+          [attr.x]="cp.x - slotWidth() / 2"
+          [attr.y]="padT"
+          [attr.width]="slotWidth()"
+          [attr.height]="ch"
+          fill="transparent"
+          (mouseenter)="hoveredIndex.set(cp.index)"
+        />
+      }
+
+      <!-- X baseline -->
+      <line [attr.x1]="padL" [attr.y1]="padT + ch" [attr.x2]="padL + cw" [attr.y2]="padT + ch" stroke="#e4e7ec" stroke-width="1" />
+    </svg>
+
+    <!-- Tooltip -->
+    @if (hoveredPoint(); as hp) {
+      <div
+        class="pointer-events-none absolute z-10 w-44 rounded-lg border border-gray-100 bg-white px-3 py-2 shadow-lg"
+        [style.left]="tooltipStyle(hp).left"
+        [style.right]="tooltipStyle(hp).right"
+        style="top: 8px"
+      >
+        <p class="mb-1 text-xs text-gray-400">{{ hp.point.date | date: 'mediumDate' }}</p>
+        <p class="mb-1 truncate text-xs font-semibold text-gray-700">
+          {{ hp.point.side === 'home' ? 'vs' : '@' }} {{ hp.point.opponent.name }}
+        </p>
+        <div class="flex items-center justify-between text-xs">
+          <span [style.color]="resultColor(hp.point.result)" class="font-semibold">
+            {{ hp.point.result ?? '—' }} {{ hp.point.goals_for }}:{{ hp.point.goals_against }}
+          </span>
+          <span class="font-semibold text-gray-800">{{ hp.point.elo_after | number: '1.0-0' }}</span>
+        </div>
+        <div class="mt-0.5 text-right text-xs" [class.text-green-600]="hp.point.delta >= 0" [class.text-red-600]="hp.point.delta < 0">
+          {{ hp.point.delta >= 0 ? '+' : '' }}{{ hp.point.delta | number: '1.0-1' }}
+        </div>
+      </div>
+    }
+  </div>
+}

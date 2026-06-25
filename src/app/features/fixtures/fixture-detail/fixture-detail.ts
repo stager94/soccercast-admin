@@ -1,7 +1,7 @@
 import { DatePipe, Location } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription, interval, timer } from 'rxjs';
 
 import { ApiFootballRequestLog, FINISHED_STATUSES, LIVE_STATUSES, FixtureDetail as FixtureDetailModel } from '../../../core/models/fixture.model';
@@ -22,7 +22,7 @@ const PREDICT_POLL_MAX_ATTEMPTS = 10;
 
 @Component({
   selector: 'app-fixture-detail',
-  imports: [DatePipe, FixtureStatusBadge, LiveTimer, EventsTimeline, LineupColumns, StatisticsCompare, PlayerStatsTable, XgPrediction],
+  imports: [DatePipe, RouterLink, FixtureStatusBadge, LiveTimer, EventsTimeline, LineupColumns, StatisticsCompare, PlayerStatsTable, XgPrediction],
   templateUrl: './fixture-detail.html',
 })
 export class FixtureDetail implements OnInit {

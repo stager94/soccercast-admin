@@ -11,6 +11,8 @@ import { QueueMonitor } from './features/queue/queue-monitor/queue-monitor';
 import { LeagueDetail } from './features/leagues/league-detail/league-detail';
 import { LeaguesList } from './features/leagues/leagues-list/leagues-list';
 import { SeasonsList } from './features/seasons/seasons-list/seasons-list';
+import { TeamsList } from './features/teams/teams-list/teams-list';
+import { TeamDetail } from './features/teams/team-detail/team-detail';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Login } from './features/auth/login/login';
 import { Sessions } from './features/auth/sessions/sessions';
@@ -35,6 +37,8 @@ export const routes: Routes = [
       { path: 'fixtures', component: FixturesCalendar },
       { path: 'leagues/:leagueId/seasons/:seasonId/fixtures', component: FixturesList },
       { path: 'fixtures/:id', component: FixtureDetail },
+      { path: 'teams', component: TeamsList },
+      { path: 'teams/:id', component: TeamDetail },
       { path: 'queue', component: QueueMonitor },
       { path: 'api-football-logs', component: ApiFootballLogsList },
       { path: 'api-football-logs/:id', component: ApiFootballLogDetail },

@@ -74,6 +74,7 @@
             <th class="pb-3 pr-4 text-center">Score</th>
             <th class="pb-3 pr-4">Away</th>
             <th class="pb-3 pr-4">Status</th>
+            <th class="pb-3 pr-4">ELO K</th>
             <th class="pb-3 text-center">Sync</th>
           </tr>
         </thead>
@@ -113,6 +114,11 @@
               </td>
               <td class="py-3 pr-4">
                 <app-fixture-status-badge [status]="f.status" />
+              </td>
+              <td class="py-3 pr-4">
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                  K{{ f.elo_k }}
+                </span>
               </td>
               <td class="py-3 text-center">
                 <div class="flex items-center justify-center gap-1 font-mono text-xs font-bold">

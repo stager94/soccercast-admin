@@ -52,6 +52,7 @@ export interface Fixture {
   league?: FixtureLeague;
   round: string;
   status: FixtureStatus;
+  elo_k: number;
   status_elapsed: number | null;
   status_extra: number | null;
   goals_home: number | null;

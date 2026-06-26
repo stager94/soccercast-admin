@@ -91,6 +91,7 @@
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Name</th>
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Type</th>
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Country</th>
+            <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">ELO K</th>
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Enabled</th>
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Created at</th>
           </tr>
@@ -135,6 +136,11 @@
                 } @else {
                   <span class="text-sm text-gray-400">—</span>
                 }
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
+                  K{{ league.elo_k_factor }}
+                </span>
               </td>
               <td class="px-4 py-3">
                 <button

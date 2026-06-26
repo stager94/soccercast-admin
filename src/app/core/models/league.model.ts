@@ -7,6 +7,8 @@ export interface League {
   league_type: string;
   logo_url: string;
   enabled: boolean;
+  national: boolean;
+  women: boolean;
   elo_k_factor: number;
   country: Country | null;
   created_at: string;

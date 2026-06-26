@@ -15,11 +15,15 @@ export class LeagueService {
     enabled?: boolean,
     name?: string,
     countryId?: number,
+    national?: boolean,
+    women?: boolean,
   ): Observable<PaginatedResponse<League>> {
     const params: Record<string, string | number | boolean> = { page, per_page: perPage };
     if (enabled !== undefined) params['enabled'] = enabled;
     if (name) params['name'] = name;
     if (countryId !== undefined) params['country'] = countryId;
+    if (national !== undefined) params['national'] = national;
+    if (women !== undefined) params['women'] = women;
     return this.http.get<PaginatedResponse<League>>('/admin/leagues', { params });
   }
 

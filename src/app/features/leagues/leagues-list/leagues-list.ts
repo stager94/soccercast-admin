@@ -12,6 +12,7 @@ import { CountrySelect } from '../../../shared/country-select/country-select';
 import { Pagination } from '../../../shared/pagination/pagination';
 
 type LeagueScope = 'all' | 'enabled' | 'disabled';
+type LeagueType = 'all' | 'club' | 'national';
 
 @Component({
   selector: 'app-leagues-list',
@@ -29,6 +30,8 @@ export class LeaguesList implements OnInit {
   readonly error = signal(false);
   readonly togglingIds = signal<Set<number>>(new Set());
   readonly scope = signal<LeagueScope>('all');
+  readonly leagueType = signal<LeagueType>('all');
+  readonly women = signal(false);
   readonly nameQuery = signal('');
   readonly selectedCountryId = signal<number | null>(null);
   readonly syncing = signal(false);
@@ -46,6 +49,16 @@ export class LeaguesList implements OnInit {
     this.load(1);
   }
 
+  setLeagueType(type: LeagueType): void {
+    this.leagueType.set(type);
+    this.load(1);
+  }
+
+  setWomen(women: boolean): void {
+    this.women.set(women);
+    this.load(1);
+  }
+
   onNameInput(value: string): void {
     this.nameQuery.set(value);
     this.search$.next();
@@ -60,6 +73,8 @@ export class LeaguesList implements OnInit {
     this.loading.set(true);
     const enabledParam =
       this.scope() === 'enabled' ? true : this.scope() === 'disabled' ? false : undefined;
+    const nationalParam =
+      this.leagueType() === 'all' ? undefined : this.leagueType() === 'national';
     this.leagueService
       .getAll(
         page,
@@ -67,6 +82,8 @@ export class LeaguesList implements OnInit {
         enabledParam,
         this.nameQuery() || undefined,
         this.selectedCountryId() ?? undefined,
+        nationalParam,
+        this.women(),
       )
       .subscribe({
         next: (response) => {

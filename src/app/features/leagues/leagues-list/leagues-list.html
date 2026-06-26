@@ -40,6 +40,50 @@
         />
       </div>
 
+      <div class="flex rounded-lg border border-gray-200 p-0.5">
+        @for (tab of [['all', 'All'], ['club', 'Club'], ['national', 'National']]; track tab[0]) {
+          <button
+            type="button"
+            (click)="setLeagueType($any(tab[0]))"
+            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            [class.bg-white]="leagueType() === tab[0]"
+            [class.shadow-sm]="leagueType() === tab[0]"
+            [class.text-gray-900]="leagueType() === tab[0]"
+            [class.text-gray-500]="leagueType() !== tab[0]"
+            [class.hover:text-gray-700]="leagueType() !== tab[0]"
+          >
+            {{ tab[1] }}
+          </button>
+        }
+      </div>
+
+      <div class="flex rounded-lg border border-gray-200 p-0.5">
+        <button
+          type="button"
+          (click)="setWomen(false)"
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          [class.bg-white]="!women()"
+          [class.shadow-sm]="!women()"
+          [class.text-gray-900]="!women()"
+          [class.text-gray-500]="women()"
+          [class.hover:text-gray-700]="women()"
+        >
+          Men
+        </button>
+        <button
+          type="button"
+          (click)="setWomen(true)"
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          [class.bg-white]="women()"
+          [class.shadow-sm]="women()"
+          [class.text-gray-900]="women()"
+          [class.text-gray-500]="!women()"
+          [class.hover:text-gray-700]="!women()"
+        >
+          Women
+        </button>
+      </div>
+
       <app-country-select
         [value]="selectedCountryId()"
         (valueChange)="onCountryChange($event)"

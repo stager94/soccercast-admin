@@ -49,6 +49,11 @@
     <div class="text-right">
       <p class="text-xs font-medium uppercase tracking-wider text-gray-400">Current Elo</p>
       <p class="text-3xl font-bold tabular-nums text-gray-900">{{ t.elo_rating | number: '1.0-0' }}</p>
+      @if (t.elo_first_match_at) {
+        <p class="mt-1 text-xs text-gray-400">
+          Since {{ t.elo_first_match_at | date: 'mediumDate' }}
+        </p>
+      }
     </div>
   </div>
 

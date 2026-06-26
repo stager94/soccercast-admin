@@ -72,6 +72,7 @@ export interface TeamDetail {
   logo_url: string | null;
   national: boolean;
   elo_rating: number;
+  elo_first_match_at: string | null;
   elo_history: EloHistoryPoint[];
   league_ratings: TeamLeagueRating[];
 }

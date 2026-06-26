@@ -28,11 +28,14 @@ export class TeamsList implements OnInit {
   readonly nameQuery = signal('');
   readonly scope = signal<TeamScope>('club');
   readonly women = signal(false);
+  readonly ageGroup = signal<string | null | undefined>(undefined);
+  readonly ageGroups = signal<string[]>([]);
 
   ngOnInit(): void {
     this.search$
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.load(1));
+    this.teamService.getAgeGroups().subscribe((groups) => this.ageGroups.set(groups));
     this.load(1);
   }
 
@@ -51,6 +54,18 @@ export class TeamsList implements OnInit {
     this.load(1);
   }
 
+  setAgeGroup(value: string): void {
+    // '' => no age_group filter (undefined); 'nil' => age_group IS NULL; otherwise exact match
+    if (value === '') {
+      this.ageGroup.set(undefined);
+    } else if (value === 'nil') {
+      this.ageGroup.set(null);
+    } else {
+      this.ageGroup.set(value);
+    }
+    this.load(1);
+  }
+
   // Global rank across all pages (leaderboard is ordered by elo desc server-side).
   rank(index: number): number {
     const meta = this.meta();
@@ -62,7 +77,14 @@ export class TeamsList implements OnInit {
   load(page: number): void {
     this.loading.set(true);
     const national = this.scope() === 'all' ? undefined : this.scope() === 'national';
-    this.teamService.getAll({ page, name: this.nameQuery() || undefined, national, women: this.women() }).subscribe({
+    const ageGroup = this.ageGroup();
+    this.teamService.getAll({
+      page,
+      name: this.nameQuery() || undefined,
+      national,
+      women: this.women(),
+      ...(ageGroup !== undefined ? { age_group: ageGroup } : {}),
+    }).subscribe({
       next: (response) => {
         this.teams.set(response.data);
         this.meta.set(response.meta);

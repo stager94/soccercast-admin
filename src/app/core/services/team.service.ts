@@ -11,6 +11,7 @@ export interface TeamsFilter {
   name?: string;
   national?: boolean;
   women?: boolean;
+  age_group?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -25,7 +26,12 @@ export class TeamService {
     if (filter.name) params['name'] = filter.name;
     if (filter.national !== undefined) params['national'] = String(filter.national);
     if (filter.women !== undefined) params['women'] = String(filter.women);
+    if (filter.age_group !== undefined) params['age_group'] = filter.age_group ?? '';
     return this.http.get<PaginatedResponse<TeamListItem>>('/admin/teams', { params });
+  }
+
+  getAgeGroups(): Observable<string[]> {
+    return this.http.get<string[]>('/admin/teams/age_groups');
   }
 
   getById(id: number | string): Observable<TeamDetail> {

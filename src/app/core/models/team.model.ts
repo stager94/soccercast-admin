@@ -4,6 +4,7 @@ export interface TeamListItem {
   logo_url: string | null;
   elo_rating: number;
   national: boolean;
+  age_group: string | null;
 }
 
 export interface TeamOpponent {
@@ -71,6 +72,7 @@ export interface TeamDetail {
   name: string;
   logo_url: string | null;
   national: boolean;
+  age_group: string | null;
   elo_rating: number;
   elo_first_match_at: string | null;
   elo_history: EloHistoryPoint[];

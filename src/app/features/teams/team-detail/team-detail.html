@@ -35,15 +35,22 @@
       }
       <div>
         <h1 class="text-2xl font-semibold text-gray-900">{{ t.name }}</h1>
-        <span
-          class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-          [class.bg-indigo-50]="t.national"
-          [class.text-indigo-600]="t.national"
-          [class.bg-gray-100]="!t.national"
-          [class.text-gray-600]="!t.national"
-        >
-          {{ t.national ? 'National' : 'Club' }}
-        </span>
+        <div class="mt-1 flex flex-wrap items-center gap-1.5">
+          <span
+            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+            [class.bg-indigo-50]="t.national"
+            [class.text-indigo-600]="t.national"
+            [class.bg-gray-100]="!t.national"
+            [class.text-gray-600]="!t.national"
+          >
+            {{ t.national ? 'National' : 'Club' }}
+          </span>
+          @if (t.age_group) {
+            <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+              {{ t.age_group }}
+            </span>
+          }
+        </div>
       </div>
     </div>
     <div class="text-right">

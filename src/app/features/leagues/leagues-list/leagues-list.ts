@@ -115,12 +115,12 @@ export class LeaguesList implements OnInit {
     });
   }
 
-  toggleEnabled(league: League): void {
+  toggleField(league: League, field: 'enabled' | 'women' | 'national'): void {
     const ids = new Set(this.togglingIds());
     ids.add(league.id);
     this.togglingIds.set(ids);
 
-    this.leagueService.update(league.id, !league.enabled).subscribe({
+    this.leagueService.update(league.id, { [field]: !league[field] }).subscribe({
       next: (updated) => {
         this.leagues.update((list) => list.map((l) => (l.id === updated.id ? updated : l)));
         const next = new Set(this.togglingIds());
@@ -134,6 +134,8 @@ export class LeaguesList implements OnInit {
       },
     });
   }
+
+  toggleEnabled(league: League): void { this.toggleField(league, 'enabled'); }
 
   isToggling(id: number): boolean {
     return this.togglingIds().has(id);

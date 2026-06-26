@@ -137,6 +137,8 @@
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Country</th>
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">ELO K</th>
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Enabled</th>
+            <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Women</th>
+            <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">National</th>
             <th class="px-4 py-3 text-xs font-medium uppercase tracking-wider text-gray-400">Created at</th>
           </tr>
         </thead>
@@ -189,7 +191,7 @@
               <td class="px-4 py-3">
                 <button
                   type="button"
-                  (click)="toggleEnabled(league)"
+                  (click)="toggleField(league, 'enabled')"
                   [disabled]="isToggling(league.id)"
                   class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   [class.bg-brand-500]="league.enabled"
@@ -199,6 +201,38 @@
                     class="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200"
                     [class.translate-x-5]="league.enabled"
                     [class.translate-x-0]="!league.enabled"
+                  ></span>
+                </button>
+              </td>
+              <td class="px-4 py-3">
+                <button
+                  type="button"
+                  (click)="toggleField(league, 'women')"
+                  [disabled]="isToggling(league.id)"
+                  class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  [class.bg-brand-500]="league.women"
+                  [class.bg-gray-200]="!league.women"
+                >
+                  <span
+                    class="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200"
+                    [class.translate-x-5]="league.women"
+                    [class.translate-x-0]="!league.women"
+                  ></span>
+                </button>
+              </td>
+              <td class="px-4 py-3">
+                <button
+                  type="button"
+                  (click)="toggleField(league, 'national')"
+                  [disabled]="isToggling(league.id)"
+                  class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  [class.bg-brand-500]="league.national"
+                  [class.bg-gray-200]="!league.national"
+                >
+                  <span
+                    class="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200"
+                    [class.translate-x-5]="league.national"
+                    [class.translate-x-0]="!league.national"
                   ></span>
                 </button>
               </td>

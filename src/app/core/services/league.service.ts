@@ -31,8 +31,8 @@ export class LeagueService {
     return this.http.get<LeagueDetail>(`/admin/leagues/${id}`);
   }
 
-  update(id: number, enabled: boolean): Observable<League> {
-    return this.http.patch<League>(`/admin/leagues/${id}`, { league: { enabled } });
+  update(id: number, data: Partial<Pick<League, 'enabled' | 'women' | 'national'>>): Observable<League> {
+    return this.http.patch<League>(`/admin/leagues/${id}`, { league: data });
   }
 
   updateLeagueSeason(

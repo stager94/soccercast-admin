@@ -81,7 +81,7 @@ export class LeagueDetail implements OnInit {
     const current = this.league();
     if (!current || this.toggling()) return;
     this.toggling.set(true);
-    this.leagueService.update(current.id, !current.enabled).subscribe({
+    this.leagueService.update(current.id, { enabled: !current.enabled }).subscribe({
       next: (updated: League) => {
         this.league.update((l) => (l ? { ...l, ...updated } : l));
         this.toggling.set(false);

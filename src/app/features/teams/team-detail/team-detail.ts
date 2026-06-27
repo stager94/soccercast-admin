@@ -49,6 +49,22 @@ export class TeamDetail implements OnInit {
     this.location.back();
   }
 
+  downloadEloHistoryCsv(): void {
+    const team = this.team();
+    if (!team) return;
+
+    this.teamService.downloadEloHistoryCsv(team.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${team.name}-elo-history.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+    });
+  }
+
   resultClass(result: string | null): string {
     if (result === 'W') return 'bg-green-50 text-green-600';
     if (result === 'L') return 'bg-red-50 text-red-600';

@@ -37,4 +37,8 @@ export class TeamService {
   getById(id: number | string): Observable<TeamDetail> {
     return this.http.get<TeamDetail>(`/admin/teams/${id}`);
   }
+
+  downloadEloHistoryCsv(id: number | string): Observable<Blob> {
+    return this.http.get(`/admin/teams/${id}/elo_history_csv`, { responseType: 'blob' });
+  }
 }

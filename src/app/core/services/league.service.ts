@@ -53,6 +53,10 @@ export class LeagueService {
     return this.http.post<void>(`/admin/leagues/${leagueId}/seasons/${seasonId}/predict_dc`, null);
   }
 
+  backtestDc(leagueId: number, seasonId: number): Observable<void> {
+    return this.http.post<void>(`/admin/leagues/${leagueId}/seasons/${seasonId}/backtest_dc`, null);
+  }
+
   getDcStats(leagueId: number, seasonId: number): Observable<DcStats> {
     return this.http.get<DcStats>(`/admin/leagues/${leagueId}/seasons/${seasonId}/dc_stats`);
   }

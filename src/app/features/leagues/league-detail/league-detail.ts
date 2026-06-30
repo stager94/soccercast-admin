@@ -48,7 +48,8 @@ export class LeagueDetail implements OnInit {
   readonly toggling = signal(false);
   readonly togglingSeasonSyncId = signal<number | null>(null);
   readonly fittingDcId = signal<number | null>(null);
-  readonly predictingDcId = signal<number | null>(null);
+  readonly predictingDcId  = signal<number | null>(null);
+  readonly backtestingDcId = signal<number | null>(null);
   readonly showPastSeasons = signal(false);
   readonly expandedPastIds = signal<Set<number>>(new Set());
 
@@ -132,6 +133,16 @@ export class LeagueDetail implements OnInit {
     this.leagueService.predictDc(league.id, ls.id).subscribe({
       next: () => this.predictingDcId.set(null),
       error: () => this.predictingDcId.set(null),
+    });
+  }
+
+  backtestDc(ls: LeagueSeason): void {
+    const league = this.league();
+    if (!league || this.backtestingDcId() !== null) return;
+    this.backtestingDcId.set(ls.id);
+    this.leagueService.backtestDc(league.id, ls.id).subscribe({
+      next: () => this.backtestingDcId.set(null),
+      error: () => this.backtestingDcId.set(null),
     });
   }
 

@@ -30,9 +30,19 @@
       }
       <span
         class="rounded-full px-3 py-1 font-medium"
-        [class]="p.converged ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'"
+        [class]="p.data_quality.converged ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'"
       >
-        {{ p.converged ? 'MLE converged' : 'MLE not converged' }}
+        {{ p.data_quality.converged ? 'MLE converged' : 'MLE not converged' }}
+      </span>
+      <span
+        class="rounded-full px-3 py-1 font-medium"
+        [class]="{
+          'bg-green-100 text-green-700': p.data_quality.label === 'high',
+          'bg-amber-100 text-amber-700': p.data_quality.label === 'medium',
+          'bg-gray-100 text-gray-500':   p.data_quality.label === 'low'
+        }"
+      >
+        {{ p.data_quality.label === 'high' ? 'High confidence' : p.data_quality.label === 'medium' ? 'Medium confidence' : 'Low confidence' }}
       </span>
     </div>
   </div>
@@ -127,13 +137,13 @@
             <td class="px-3 py-1.5 font-medium text-gray-600">{{ homeName() }}</td>
             <td class="px-3 py-1.5 text-right text-gray-700">{{ p.params.home.alpha === null ? '—' : (p.params.home.alpha | number: '1.2-2') }}</td>
             <td class="px-3 py-1.5 text-right text-gray-700">{{ p.params.home.beta === null ? '—' : (p.params.home.beta | number: '1.2-2') }}</td>
-            <td class="px-3 py-1.5 text-right text-gray-700">{{ p.fixtures_used_home }}</td>
+            <td class="px-3 py-1.5 text-right text-gray-700">{{ p.data_quality.fixtures_used_home }}</td>
           </tr>
           <tr>
             <td class="px-3 py-1.5 font-medium text-gray-600">{{ awayName() }}</td>
             <td class="px-3 py-1.5 text-right text-gray-700">{{ p.params.away.alpha === null ? '—' : (p.params.away.alpha | number: '1.2-2') }}</td>
             <td class="px-3 py-1.5 text-right text-gray-700">{{ p.params.away.beta === null ? '—' : (p.params.away.beta | number: '1.2-2') }}</td>
-            <td class="px-3 py-1.5 text-right text-gray-700">{{ p.fixtures_used_away }}</td>
+            <td class="px-3 py-1.5 text-right text-gray-700">{{ p.data_quality.fixtures_used_away }}</td>
           </tr>
         </tbody>
       </table>

@@ -183,6 +183,13 @@ export interface FixtureXgPrediction {
 
 export interface FixtureDcPrediction {
   id: number;
+  confidence: number;
+  data_quality: {
+    label: ConfidenceLabel;
+    fixtures_used_home: number;
+    fixtures_used_away: number;
+    converged: boolean;
+  };
   home_lambda: number;
   away_lambda: number;
   score_line: string;
@@ -205,9 +212,6 @@ export interface FixtureDcPrediction {
     totals?: Record<string, { over: number; under: number }>;
     handicaps?: Record<string, { home: number; away: number }>;
   };
-  converged: boolean;
-  fixtures_used_home: number;
-  fixtures_used_away: number;
   model_version: string;
   computed_at: string;
 }

@@ -45,6 +45,14 @@ export class LeagueService {
     });
   }
 
+  fitDcParams(leagueId: number, seasonId: number): Observable<void> {
+    return this.http.post<void>(`/admin/leagues/${leagueId}/seasons/${seasonId}/fit_dc_params`, null);
+  }
+
+  predictDc(leagueId: number, seasonId: number): Observable<void> {
+    return this.http.post<void>(`/admin/leagues/${leagueId}/seasons/${seasonId}/predict_dc`, null);
+  }
+
   sync(): Observable<void> {
     return this.http.post<void>('/admin/leagues/sync', null);
   }

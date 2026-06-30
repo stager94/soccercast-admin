@@ -46,6 +46,8 @@ export class LeagueDetail implements OnInit {
   readonly error = signal(false);
   readonly toggling = signal(false);
   readonly togglingSeasonSyncId = signal<number | null>(null);
+  readonly fittingDcId = signal<number | null>(null);
+  readonly predictingDcId = signal<number | null>(null);
   readonly showPastSeasons = signal(false);
   readonly expandedPastIds = signal<Set<number>>(new Set());
 
@@ -110,6 +112,26 @@ export class LeagueDetail implements OnInit {
         },
         error: () => this.togglingSeasonSyncId.set(null),
       });
+  }
+
+  fitDcParams(ls: LeagueSeason): void {
+    const league = this.league();
+    if (!league || this.fittingDcId() !== null) return;
+    this.fittingDcId.set(ls.id);
+    this.leagueService.fitDcParams(league.id, ls.id).subscribe({
+      next: () => this.fittingDcId.set(null),
+      error: () => this.fittingDcId.set(null),
+    });
+  }
+
+  predictDc(ls: LeagueSeason): void {
+    const league = this.league();
+    if (!league || this.predictingDcId() !== null) return;
+    this.predictingDcId.set(ls.id);
+    this.leagueService.predictDc(league.id, ls.id).subscribe({
+      next: () => this.predictingDcId.set(null),
+      error: () => this.predictingDcId.set(null),
+    });
   }
 
   toggleShowPastSeasons(): void {

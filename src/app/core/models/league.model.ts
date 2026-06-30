@@ -24,6 +24,8 @@ export interface LeagueSeason {
   season: { id: number; year: number };
   coverage: Record<string, unknown>;
   fixtures_summary: FixturesSummary | null;
+  dc_params_fitted_at: string | null;
+  dc_params_count: number | null;
 }
 
 export interface LeagueDetail extends League {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { League, LeagueDetail, LeagueSeason } from '../models/league.model';
+import { DcStats, League, LeagueDetail, LeagueSeason } from '../models/league.model';
 import { PaginatedResponse } from '../models/pagination.model';
 
 @Injectable({ providedIn: 'root' })
@@ -51,6 +51,10 @@ export class LeagueService {
 
   predictDc(leagueId: number, seasonId: number): Observable<void> {
     return this.http.post<void>(`/admin/leagues/${leagueId}/seasons/${seasonId}/predict_dc`, null);
+  }
+
+  getDcStats(leagueId: number, seasonId: number): Observable<DcStats> {
+    return this.http.get<DcStats>(`/admin/leagues/${leagueId}/seasons/${seasonId}/dc_stats`);
   }
 
   sync(): Observable<void> {

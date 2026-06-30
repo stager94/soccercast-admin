@@ -31,3 +31,15 @@ export interface LeagueSeason {
 export interface LeagueDetail extends League {
   league_seasons: LeagueSeason[];
 }
+
+export interface DcMarketStat {
+  correct: number;
+  total: number;
+  accuracy: number | null;
+}
+
+export interface DcStats {
+  total_fixtures: number;
+  overall_accuracy: number | null;
+  markets: Record<string, DcMarketStat>;
+}

@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { League, LeagueDetail as LeagueDetailModel, LeagueSeason } from '../../../core/models/league.model';
 import { LeagueService } from '../../../core/services/league.service';
+import { DcAccuracyStats } from '../../../shared/dc-accuracy-stats/dc-accuracy-stats';
 import { FixtureSummaryBlock } from '../../../shared/fixture-summary-block/fixture-summary-block';
 
 export interface CoverageChip {
@@ -34,7 +35,7 @@ const COVERAGE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'app-league-detail',
-  imports: [DatePipe, RouterLink, FixtureSummaryBlock],
+  imports: [DatePipe, RouterLink, FixtureSummaryBlock, DcAccuracyStats],
   templateUrl: './league-detail.html',
 })
 export class LeagueDetail implements OnInit {

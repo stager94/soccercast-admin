@@ -210,6 +210,10 @@
                 [seasonId]="cs.id"
               />
             }
+            <app-dc-accuracy-stats
+              [leagueId]="league()!.id"
+              [seasonId]="cs.id"
+            />
           </div>
         }
 
@@ -350,6 +354,10 @@
                             [seasonId]="ls.id"
                           />
                         }
+                        <app-dc-accuracy-stats
+                          [leagueId]="league()!.id"
+                          [seasonId]="ls.id"
+                        />
                       </div>
                     }
                   </div>
